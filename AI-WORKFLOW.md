@@ -46,10 +46,11 @@ Die ehrliche Liste. Kein Fehler ist in Produktion gegangen, aber jeder davon wä
 | Das Stemming war danach zu grosszügig: «lieb» passte zu «Lieblingspizza». | Unit-Test | Längenbegrenzung |
 | Die Begrenzung paralleler Code-Prüfungen hatte ein Race: Prüfung vor einem `await`, Hochzählen danach. Sechs gleichzeitige Versuche kamen alle durch. | Unit-Test mit parallelen Anfragen | Prüfen und Hochzählen ohne `await` dazwischen |
 | Der erste Entwurf von MEMES.md behauptete, ich hätte die Schrift selbst Pixel für Pixel gezeichnet. Hat der Agent. | Review gegen die Folie «Honesty» | Formulierung korrigiert |
+| **Der teuerste Fehler:** Die Regel `knowledge/` in der `.gitignore` sollte den privaten Wissensordner schützen, blendete aber auch `src/server/knowledge/` aus. Der Wissens-Loader war nie committet, ein frischer Clone wäre nicht gestartet. Alle 192 Tests waren trotzdem grün, weil die Dateien auf der Platte lagen. Biome hat sie aus demselben Grund nie formatiert. | Nachbau des Docker-Builds aus den committeten Dateien | `/knowledge/` statt `knowledge/`, seither wird jede Änderung in einem frischen Clone geprüft |
 
 Dazu kamen zwei Fehler in den eigenen Tests des Agents (ein E2E-Test erwartete nach `CODE` ein `READY.`, ein anderer fand denselben Text zusätzlich in der unsichtbaren Screenreader-Ansage) und ein paar Shell-Befehle, deren Escaping beim Bearbeiten von Code mit Regex kaputtging.
 
-**Was daraus folgt:** Von den 18 Fehlern in der Tabelle haben automatisierte Tests 10 gefunden, Browser und Screenshots 3, Reviews 5. Der Agent schreibt schnell und meistens richtig, aber er prüft seine eigenen Annahmen nicht von selbst. Das Sicherheitsnetz muss stehen, bevor man ihm vertraut.
+**Was daraus folgt:** Von den 19 Fehlern in der Tabelle haben automatisierte Tests 10 gefunden, Browser und Screenshots 3, Reviews 5 und der nachgestellte Build einen. Der Agent schreibt schnell und meistens richtig, aber er prüft seine eigenen Annahmen nicht von selbst. Das Sicherheitsnetz muss stehen, bevor man ihm vertraut. Und es muss prüfen, was ausgeliefert wird: Grüne Tests im Arbeitsverzeichnis beweisen nichts über das Repository.
 
 ## Was noch ein Mensch prüfen muss
 
@@ -58,5 +59,5 @@ Ehrlich offen, Stand jetzt:
 * **Echte Antworten:** Die Tests laufen im Mock-Modus. Wie sich Claude Haiku mit der echten Wissensbasis verhält, insbesondere bei Jailbreak-Versuchen, braucht einen Testlauf mit API-Key und kritisches Lesen der Antworten.
 * **Die Wissensbasis selbst:** Was der Bot über mich sagt, ist nur so ehrlich wie das, was ich hineinschreibe.
 * **Screenreader:** axe findet keine Verstösse, aber ein Durchgang mit NVDA oder VoiceOver ersetzt das nicht.
-* **Docker:** Auf dem Entwicklungsrechner gab es kein Docker. Das Image wurde lokal nachgestellt und die CI baut es, aber der echte Deploy steht noch aus.
+* **Docker:** Auf dem Entwicklungsrechner gab es weder Docker noch WSL. Der Build wurde aus einem frischen Clone Stufe für Stufe nachgestellt (Kontext gemäss `.dockerignore`, dieselben Befehle, Start wie im `CMD`, dieselben Smoke-Tests wie in der CI), und alle Importpfade wurden auf exakte Gross- und Kleinschreibung geprüft, wie sie Linux verlangt. Ein echter `docker build` steht trotzdem noch aus.
 * **MEMES.md:** steht in meiner Stimme und muss nach meinem Gegenlesen stimmen, nicht nach dem des Agents.
