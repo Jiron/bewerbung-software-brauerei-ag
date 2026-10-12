@@ -19,7 +19,9 @@ const TIERS: readonly Tier[] = ["public", "private"];
 
 /** The sections a visitor on `tier` may see. The private tier sees everything. */
 export function visibleSections(knowledge: Knowledge, tier: Tier): KnowledgeSection[] {
-  return tier === "private" ? knowledge.sections : knowledge.sections.filter((s) => s.tier === "public");
+  return tier === "private"
+    ? knowledge.sections
+    : knowledge.sections.filter((s) => s.tier === "public");
 }
 
 export function lockedSectionCount(knowledge: Knowledge, tier: Tier): number {
