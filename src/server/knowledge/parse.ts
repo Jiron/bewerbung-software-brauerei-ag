@@ -53,7 +53,9 @@ export function parseKnowledgeFile(fileName: string, markdown: string, tier: Tie
 
 /** "Werdegang: Lehre", or just "Profil" for a file's intro section. */
 export function displayTitle(section: Pick<KnowledgeSection, "title" | "fileTitle">): string {
-  return section.title === section.fileTitle ? section.title : `${section.fileTitle}: ${section.title}`;
+  return section.title === section.fileTitle
+    ? section.title
+    : `${section.fileTitle}: ${section.title}`;
 }
 
 export function slugify(text: string): string {
