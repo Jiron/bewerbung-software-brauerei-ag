@@ -100,9 +100,24 @@ describe("knowledge endpoints", () => {
     expect(response.status).toBe(404);
     expect(await response.json()).toMatchObject({ error: "not_found" });
   });
+
+  it("treats a malformed section id as not found instead of crashing", async () => {
+    const { app } = await createTestApp();
+    expect((await app.request("/api/knowledge/%E0%A4%A")).status).toBe(404);
+  });
 });
 
 describe("POST /api/unlock", () => {
+  it("verifies only a few codes at a time", async () => {
+    const { app } = await createTestApp({ unlockMaxAttempts: 100 });
+    const responses = await Promise.all(
+      Array.from({ length: 6 }, () => app.request("/api/unlock", postJson({ code: "Rate mal" }))),
+    );
+    const statuses = responses.map((response) => response.status);
+    expect(statuses).toContain(401);
+    expect(statuses).toContain(429);
+  });
+
   it("accepts the code case-insensitively and sets a strict httpOnly cookie", async () => {
     const { app } = await createTestApp();
     const response = await app.request("/api/unlock", postJson({ code: TEST_CODE.toUpperCase() }));

@@ -56,10 +56,12 @@ type AppEnv = { Variables: { tier: Tier; ip: string } };
 
 const SESSION_COOKIE = "lm_session";
 const CONVERSATION_ID = /^[A-Za-z0-9-]{8,64}$/;
+const MAX_PARALLEL_VERIFICATIONS = 2;
 
 export function createApp(deps: AppDeps): Hono<AppEnv> {
   const { config, knowledge, chat, limiters, logger } = deps;
   const app = new Hono<AppEnv>();
+  let verifying = 0;
 
   app.use(
     secureHeaders({
@@ -139,7 +141,21 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
 
     const body = await readJson(c);
     const code = typeof body?.code === "string" ? body.code.slice(0, 200) : "";
-    if (!code.trim() || !(await verifyAccessCode(code, config.accessCodeHash))) {
+
+    // scrypt is deliberately slow and memory hungry. A burst of guesses from many
+    // addresses must not fill Node's thread pool, which also serves file reads.
+    // Check and increment with no await in between, or parallel requests slip through.
+    if (verifying >= MAX_PARALLEL_VERIFICATIONS) {
+      return apiError(c, 429, "rate_limited", "Hey, nicht so hastig!", { retryAfterSeconds: 2 });
+    }
+    let valid = false;
+    verifying++;
+    try {
+      valid = code.trim() !== "" && (await verifyAccessCode(code, config.accessCodeHash));
+    } finally {
+      verifying--;
+    }
+    if (!valid) {
       limiters.unlockPerIp.hit(ip);
       limiters.unlockGlobal.hit("all");
       logger.warn("unlock.failed", { ip });
@@ -188,7 +204,7 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
   });
 
   app.get("/api/knowledge/*", (c) => {
-    const id = decodeURIComponent(c.req.path.slice("/api/knowledge/".length));
+    const id = safeDecode(c.req.path.slice("/api/knowledge/".length));
     // Private sections answer 404 while locked: not even their existence leaks.
     const section = visibleSections(knowledge.current, c.get("tier")).find((s) => s.id === id);
     if (!section) return apiError(c, 404, "not_found", "Diesen Abschnitt gibt es nicht.");
@@ -272,6 +288,15 @@ function mountStatic(app: Hono<AppEnv>, root: string): void {
     );
     return c.html(notFoundPage, 404);
   });
+}
+
+/** decodeURIComponent throws on input like "%E0%A4%A"; a broken id is simply not found. */
+function safeDecode(value: string): string {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return "";
+  }
 }
 
 /** Sets Cache-Control on successful responses (serveStatic's onFound runs too late for that). */

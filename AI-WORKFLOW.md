@@ -44,11 +44,12 @@ Die ehrliche Liste. Kein Fehler ist in Produktion gegangen, aber jeder davon wä
 | Das Schreibwerkzeug des Agents hat `–`-Escapes in echte Zeichen verwandelt. Im Code standen danach Halbgeviertstrich und Geviertstrich, die man nicht unterscheiden kann, und unsichtbare geschützte Leerzeichen. | Beim Lesen des Codes | Escapes per Skript aus Codepunkten wiederhergestellt |
 | Der Mock fand auf die vorgeschlagene Frage «Wie arbeitest du mit AI?» nichts: Zwei Buchstaben waren zu kurz, «arbeitest» passte nicht zu «arbeiten». | Smoke-Test des MCP-Servers | Leichtes Stemming, Tests für alle Vorschläge |
 | Das Stemming war danach zu grosszügig: «lieb» passte zu «Lieblingspizza». | Unit-Test | Längenbegrenzung |
+| Die Begrenzung paralleler Code-Prüfungen hatte ein Race: Prüfung vor einem `await`, Hochzählen danach. Sechs gleichzeitige Versuche kamen alle durch. | Unit-Test mit parallelen Anfragen | Prüfen und Hochzählen ohne `await` dazwischen |
 | Der erste Entwurf von MEMES.md behauptete, ich hätte die Schrift selbst Pixel für Pixel gezeichnet. Hat der Agent. | Review gegen die Folie «Honesty» | Formulierung korrigiert |
 
 Dazu kamen zwei Fehler in den eigenen Tests des Agents (ein E2E-Test erwartete nach `CODE` ein `READY.`, ein anderer fand denselben Text zusätzlich in der unsichtbaren Screenreader-Ansage) und ein paar Shell-Befehle, deren Escaping beim Bearbeiten von Code mit Regex kaputtging.
 
-**Was daraus folgt:** Von den 17 Fehlern in der Tabelle haben automatisierte Tests 9 gefunden, Browser und Screenshots 3, Reviews 5. Der Agent schreibt schnell und meistens richtig, aber er prüft seine eigenen Annahmen nicht von selbst. Das Sicherheitsnetz muss stehen, bevor man ihm vertraut.
+**Was daraus folgt:** Von den 18 Fehlern in der Tabelle haben automatisierte Tests 10 gefunden, Browser und Screenshots 3, Reviews 5. Der Agent schreibt schnell und meistens richtig, aber er prüft seine eigenen Annahmen nicht von selbst. Das Sicherheitsnetz muss stehen, bevor man ihm vertraut.
 
 ## Was noch ein Mensch prüfen muss
 
