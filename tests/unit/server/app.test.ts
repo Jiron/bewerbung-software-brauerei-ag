@@ -216,7 +216,9 @@ describe("POST /api/chat", () => {
   });
 
   it("rewrites dashes and eszett out of the model output", async () => {
-    const provider = new ScriptedProvider("Grüße — ich teste – immer. [[QUELLEN: keine]]");
+    const provider = new ScriptedProvider(
+      "Grüße \u2014 ich teste \u2013 immer. [[QUELLEN: keine]]",
+    );
     const { app } = await createTestApp({ provider });
     const events = await readChatEvents(
       await app.request("/api/chat", postJson({ conversationId: CONVERSATION, message: "Hoi" })),

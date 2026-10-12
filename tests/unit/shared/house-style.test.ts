@@ -12,8 +12,8 @@ import { loadKnowledge } from "../../../src/server/knowledge/store.ts";
 import { findStyleViolations } from "../../../src/shared/house-style.ts";
 
 const root = path.resolve(import.meta.dirname, "../../..");
-const EN_DASH = "–";
-const EM_DASH = "—";
+const EN_DASH = "\u2013";
+const EM_DASH = "\u2014";
 
 /** Every string in the copy module, including the results of its template functions. */
 function collectStrings(value: unknown, found: string[] = []): string[] {

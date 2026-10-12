@@ -1,7 +1,7 @@
 import { DASH_PUNCTUATION } from "../../shared/house-style.ts";
 
 /** Characters whose rewrite depends on what comes next, so they wait for more input. */
-const UNSETTLED = /[\s\-‒-―*_#`]+$/;
+const UNSETTLED = /[\s\-\u2012-\u2015*_#`]+$/;
 
 /**
  * Streaming rewrite of model output into house style. The system prompt asks the

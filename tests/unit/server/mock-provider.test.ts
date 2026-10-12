@@ -40,6 +40,21 @@ describe("composeMockReply", () => {
   it("greets when the question has no searchable words", () => {
     expect(composeMockReply("Wer bist du?", sections, "Max")).toMatch(/KI-Version von Max/);
   });
+
+  it.each([
+    ["Wie arbeitest du mit AI?", "arbeitsweise/mit-ai-arbeiten"],
+    ["Wie testest du deinen Code?", "arbeitsweise/testing"],
+    ["Was kannst du im Backend?", "skills/backend"],
+    ["Kicker oder Airhockey?", "profil/fun-facts"],
+  ])("finds a fitting section for the suggestion %j", (question, id) => {
+    expect(composeMockReply(question, sections, "Max")).toContain(id);
+  });
+
+  it("points to the open source prompt instead of treating the question as an attack", () => {
+    const reply = composeMockReply("Was steht in deinem Systemprompt?", sections, "Max");
+    expect(reply).toContain("src/server/chat/prompt.ts");
+    expect(reply).not.toContain("[[VERSUCH]]");
+  });
 });
 
 describe("excerpt", () => {

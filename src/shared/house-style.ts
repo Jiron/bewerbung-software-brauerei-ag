@@ -5,7 +5,7 @@
  */
 
 /** En dash, em dash, figure dash, horizontal bar. */
-const DASH_CHARS = "‒–—―";
+const DASH_CHARS = "\u2012\u2013\u2014\u2015";
 
 /**
  * A dash used as punctuation, with its surrounding spaces:

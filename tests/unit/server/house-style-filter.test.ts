@@ -5,8 +5,8 @@ import {
 } from "../../../src/server/chat/house-style-filter.ts";
 import { findStyleViolations } from "../../../src/shared/house-style.ts";
 
-const EN_DASH = "–";
-const EM_DASH = "—";
+const EN_DASH = "\u2013";
+const EM_DASH = "\u2014";
 
 function stream(chunks: string[]): string {
   const filter = new HouseStyleFilter();

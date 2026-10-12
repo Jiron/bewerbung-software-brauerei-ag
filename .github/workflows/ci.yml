@@ -1,0 +1,66 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Lint, types, unit tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run typecheck
+      - run: npm test
+
+  e2e:
+    name: End-to-end (mock mode, desktop and mobile)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report
+          retention-days: 7
+
+  docker:
+    name: Docker image boots
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t load-manasses:ci .
+      - name: Smoke test
+        run: |
+          docker run -d --name lm -p 3000:3000 load-manasses:ci
+          for i in $(seq 1 30); do
+            curl -fs http://localhost:3000/api/health && break
+            sleep 1
+          done
+          curl -fs http://localhost:3000/api/session | grep -q '"mode":"mock"'
+          curl -fs http://localhost:3000/ | grep -q 'MANASSES'
+          test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/nope)" = "404"
+      - if: always()
+        run: docker logs lm || true

@@ -1,0 +1,14 @@
+.git
+.github
+.claude
+node_modules
+dist
+data
+coverage
+test-results
+playwright-report
+# Never bake real knowledge or secrets into an image: they are mounted at runtime.
+knowledge
+.env
+.env.*
+*.log

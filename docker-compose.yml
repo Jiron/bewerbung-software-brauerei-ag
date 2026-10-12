@@ -1,0 +1,30 @@
+services:
+  load-manasses:
+    build: .
+    image: load-manasses:latest
+    restart: unless-stopped
+    # Secrets (API key, access code hash, session secret) come from .env, see .env.example.
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      NODE_ENV: production
+      KNOWLEDGE_DIR: /knowledge
+      DATA_DIR: /data
+    volumes:
+      # The real knowledge lives only on the server, read-only for the app.
+      - ${KNOWLEDGE_PATH:-./knowledge}:/knowledge:ro
+      # Persists the daily spend counter across restarts.
+      - load-manasses-data:/data
+    ports:
+      - "${PORT:-3000}:3000"
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+
+volumes:
+  load-manasses-data:
