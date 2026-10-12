@@ -29,9 +29,10 @@ export interface AppElements {
   prompt: PromptElements;
 }
 
+/** Used until /api/session answers, and if it never does. */
 const FALLBACK_SESSION: SessionInfo = {
   tier: "public",
-  mode: "mock",
+  mode: "live",
   demo: false,
   persona: { name: "Manassés Zähnler", shortName: "Manassés" },
   limits: { maxMessageLength: 500 },
@@ -75,12 +76,17 @@ export class App {
   }
 
   async start(): Promise<void> {
-    this.#session = await api.session().catch(() => FALLBACK_SESSION);
-    this.#prompt.setMaxLength(this.#session.limits.maxMessageLength);
+    // The C64 does not wait for the network: boot and session request run in parallel.
+    const sessionRequest = api.session().catch(() => null);
     const returning = session.get("booted") === "1";
     await this.#runBoot(returning ? 0.35 : 1);
     session.set("booted", "1");
+
+    const info = await sessionRequest;
+    if (info) this.#session = info;
+    this.#prompt.setMaxLength(this.#session.limits.maxMessageLength);
     this.#printIntro();
+    if (!info) this.#screen.error(ERRORS.offline.code, ERRORS.offline.text);
     this.#renderSuggestions();
     this.#idle();
   }
