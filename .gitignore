@@ -1,0 +1,13 @@
+node_modules/
+dist/
+data/
+coverage/
+test-results/
+playwright-report/
+.env
+.env.*
+!.env.example
+# Real knowledge about the applicant never goes into the repo.
+knowledge/
+*.log
+.DS_Store
