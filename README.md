@@ -153,7 +153,7 @@ Alles optional, Details und Standardwerte in [`.env.example`](.env.example).
 | `npm run build` und `npm start` | Produktions-Build und Server auf :3000 (liest `.env`) |
 | `npm run font` | Pixelschrift aus `scripts/font/glyphs.ts` neu bauen |
 
-Die Tests decken unter anderem ab: Marken über jede mögliche Chunk-Grenze, Hausstil aller Texte und Dokumente, dass private Abschnitte vor dem Entsperren nie im Prompt landen, Limits, Fehler im C64-Stil, Barrierefreiheit (axe) und dass die Schrift jedes Zeichen der UI enthält.
+Die Tests decken unter anderem ab: Marken über jede mögliche Chunk-Grenze, Hausstil aller Texte und Dokumente, dass private Abschnitte vor dem Entsperren nie im Prompt landen, Limits, Fehler im C64-Stil, Barrierefreiheit (axe), dass die Schrift jedes Zeichen der UI enthält, den MCP-Server gegen die echte App und den Claude-Provider gegen eine simulierte Messages API (Anfrageformat, Thinking-Blöcke, Usage, Ausfälle).
 
 ## Deployment
 

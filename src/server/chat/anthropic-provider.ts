@@ -14,6 +14,9 @@ export interface AnthropicProviderOptions {
   effort: "low" | "medium" | "high";
   maxOutputTokens: number;
   logger: Logger;
+  /** Replaces the network in tests. */
+  fetch?: typeof fetch;
+  maxRetries?: number;
 }
 
 export class AnthropicProvider implements ChatProvider {
@@ -25,8 +28,13 @@ export class AnthropicProvider implements ChatProvider {
   constructor(options: AnthropicProviderOptions) {
     this.model = options.model;
     this.#options = options;
-    // One retry is enough for a chat: the visitor is watching a blinking cursor.
-    this.#client = new Anthropic({ apiKey: options.apiKey, maxRetries: 1, timeout: 45_000 });
+    this.#client = new Anthropic({
+      apiKey: options.apiKey,
+      // One retry is enough for a chat: the visitor is watching a blinking cursor.
+      maxRetries: options.maxRetries ?? 1,
+      timeout: 45_000,
+      ...(options.fetch ? { fetch: options.fetch } : {}),
+    });
   }
 
   async *stream(request: ProviderRequest): AsyncIterable<ProviderEvent> {
