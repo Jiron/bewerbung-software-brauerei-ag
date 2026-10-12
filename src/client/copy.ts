@@ -73,7 +73,7 @@ export const CHAT = {
   tappedLive: (seconds: string) => `FRISCH GEZAPFT IN ${seconds} S`,
   tappedMock: (seconds: string) => `AUS DER DOSE IN ${seconds} S`,
   sources: "QUELLEN:",
-  noSources: "QUELLEN: keine (steht nicht in der Wissensbasis)",
+  noSources: "QUELLEN: keine",
   sourcesHint: "Klick auf eine Quelle zeigt den Originaltext.",
   truncated: "(Antwort gekürzt. Ich rede sonst zu viel.)",
   attempt: (bot: number) =>

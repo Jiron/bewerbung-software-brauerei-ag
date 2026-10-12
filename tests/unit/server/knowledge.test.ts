@@ -4,11 +4,31 @@ import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { parseKnowledgeFile, slugify } from "../../../src/server/knowledge/parse.ts";
 import {
+  KnowledgeStore,
   loadKnowledge,
   lockedSectionCount,
   visibleSections,
 } from "../../../src/server/knowledge/store.ts";
+import { silentLogger } from "../../../src/server/logger.ts";
 import { EXAMPLE_KNOWLEDGE } from "./helpers.ts";
+
+describe("KnowledgeStore", () => {
+  it("picks up edits and keeps the last good version when an edit breaks", async () => {
+    const dir = await mkdtemp(path.join(tmpdir(), "knowledge-"));
+    await mkdir(path.join(dir, "public"));
+    await writeFile(path.join(dir, "public", "profil.md"), "Version eins");
+    const store = await KnowledgeStore.open(dir, silentLogger);
+
+    await writeFile(path.join(dir, "public", "profil.md"), "Version zwei");
+    await store.reload();
+    expect(store.current.sections[0]?.content).toBe("Version zwei");
+
+    await writeFile(path.join(dir, "persona.json"), "{ kaputt");
+    await store.reload();
+    expect(store.current.sections[0]?.content).toBe("Version zwei");
+    store.close();
+  });
+});
 
 describe("parseKnowledgeFile", () => {
   const markdown = [

@@ -78,7 +78,7 @@ describe("MCP server", () => {
 
   it("formats manipulation attempts and missing sources", () => {
     expect(formatAnswer({ text: "Nö.", sources: [], attempt: true, truncated: false })).toBe(
-      "Nö.\n\nBIERWETTE: Versuch erkannt und abgewehrt.\n\nQUELLEN: keine (steht nicht in der Wissensbasis)",
+      "Nö.\n\nBIERWETTE: Versuch erkannt und abgewehrt.\n\nQUELLEN: keine",
     );
   });
 });

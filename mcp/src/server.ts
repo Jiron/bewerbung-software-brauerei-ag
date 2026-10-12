@@ -109,7 +109,7 @@ export function formatAnswer(answer: Answer): string {
   lines.push(
     answer.sources.length > 0
       ? `QUELLEN: ${answer.sources.map((source) => `${source.title} [${source.id}]`).join(", ")}`
-      : "QUELLEN: keine (steht nicht in der Wissensbasis)",
+      : "QUELLEN: keine",
   );
   return lines.join("\n\n");
 }

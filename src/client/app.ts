@@ -113,8 +113,9 @@ export class App {
   }
 
   #onEscape(): void {
-    if (this.#prompt.visible && !this.#busy) {
-      // ESC at the code prompt cancels it, like RUN/STOP during INPUT.
+    // ESC at the code prompt cancels it, like RUN/STOP during INPUT.
+    // At READY. it does nothing, just like on the real machine.
+    if (this.#prompt.mode === "secret" && !this.#busy) {
       this.#screen.line("BREAK");
       this.#idle();
     }
@@ -189,17 +190,17 @@ export class App {
       case "list":
         return command.target === null
           ? printDirectory(screen)
-          : void (await printSections(screen, command.target));
+          : printSections(screen, command.target);
       case "run":
-        if (command.program === null) return this.#printIntro();
-        return void (await printSections(screen, command.program));
+        return command.program === null
+          ? this.#printIntro()
+          : printSections(screen, command.program);
       case "logout":
         return this.#lock();
       case "bet":
         return this.#printBet();
       case "new":
-        this.#conversationId = newConversationId();
-        session.set("conversation", this.#conversationId);
+        this.#newConversation();
         screen.line(SYSTEM.newConversation);
         return;
       case "clear":
@@ -209,8 +210,7 @@ export class App {
         return this.#printAbout();
       case "reset":
         this.#resetColors();
-        this.#conversationId = newConversationId();
-        session.set("conversation", this.#conversationId);
+        this.#newConversation();
         await this.#runBoot(0.35);
         this.#printIntro();
         return;
@@ -255,7 +255,12 @@ export class App {
   async #showSource(id: string): Promise<void> {
     if (this.#busy) return;
     this.#screen.line(`LIST ${id.toUpperCase()}`, "input");
-    await this.#work(async () => void (await printSections(this.#screen, id)));
+    await this.#work(() => printSections(this.#screen, id));
+  }
+
+  #newConversation(): void {
+    this.#conversationId = newConversationId();
+    session.set("conversation", this.#conversationId);
   }
 
   // ── access code ────────────────────────────────────────────────────────────
@@ -300,6 +305,9 @@ export class App {
         this.#screen.error(ACCESS.lockedOut.code, ACCESS.lockedOut.text(minutes));
       } else if (error.code === "unlock_unavailable") {
         this.#screen.error(ACCESS.unavailable.code, ACCESS.unavailable.text);
+      } else if (error.code === "rate_limited") {
+        const { code, text } = ERRORS.rateLimited(error.retryAfterSeconds ?? 5);
+        this.#screen.error(code, text);
       } else {
         throw error;
       }

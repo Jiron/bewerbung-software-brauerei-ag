@@ -35,15 +35,15 @@ export async function printDirectory(screen: Screen): Promise<void> {
 /**
  * LIST <id> and RUN <program>: prints sections verbatim, straight from the
  * knowledge files, without any AI in between. This is how visitors verify
- * what the bot told them. Returns false when nothing matched.
+ * what the bot told them.
  */
-export async function printSections(screen: Screen, target: string): Promise<boolean> {
+export async function printSections(screen: Screen, target: string): Promise<void> {
   const index = await api.knowledge();
   const slug = PROGRAMS[target] ?? target;
   const matches = findSections(index.sections, slug);
   if (matches.length === 0) {
     screen.error(ERRORS.notFound, LISTING.programNotFound(target.toUpperCase()));
-    return false;
+    return;
   }
 
   const details = await Promise.all(matches.map((section) => api.section(section.id)));
@@ -52,7 +52,6 @@ export async function printSections(screen: Screen, target: string): Promise<boo
     printSection(screen, section);
   });
   screen.announce(details.map((section) => `${section.title}. ${section.content}`).join(" "));
-  return true;
 }
 
 function printSection(screen: Screen, section: SectionDetail): void {
