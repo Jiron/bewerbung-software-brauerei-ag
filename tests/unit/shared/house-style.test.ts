@@ -34,9 +34,12 @@ function expectHouseStyle(label: string, text: string) {
   expect(violations).toEqual([]);
 }
 
-/** Frontmatter fences and HTML comments are markup, not prose. */
+/** Frontmatter, HTML comments, table separators and rules are markup, not prose. */
 function proseOnly(markdown: string): string {
-  return markdown.replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, "").replace(/<!--[\s\S]*?-->/g, "");
+  return markdown
+    .replace(/^---\r?\n[\s\S]*?\r?\n---\r?\n/, "")
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/^\s*\|?[\s:|-]*-{3,}[\s:|-]*\|?\s*$/gm, "");
 }
 
 async function markdownFiles(dir: string): Promise<string[]> {
