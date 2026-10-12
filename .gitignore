@@ -1,6 +1,6 @@
 node_modules/
 dist/
-data/
+/data/
 coverage/
 test-results/
 playwright-report/
@@ -8,7 +8,7 @@ playwright-report/
 .env.*
 !.env.example
 # Real knowledge about the applicant never goes into the repo.
-knowledge/
+/knowledge/
 *.log
 .DS_Store
 
