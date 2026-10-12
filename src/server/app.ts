@@ -229,6 +229,8 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
     }
 
     const tier = c.get("tier");
+    // Reverse proxies like nginx would otherwise buffer the stream and kill the typewriter.
+    c.header("X-Accel-Buffering", "no");
     return streamSSE(c, async (stream) => {
       const abort = new AbortController();
       stream.onAbort(() => abort.abort());

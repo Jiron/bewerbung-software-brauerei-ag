@@ -57,6 +57,29 @@ test.describe("errors stay in character", () => {
     await enter(page, "Hoi");
     expect(await outputAfter(page, "Hoi")).toContain("Datasette");
   });
+
+  test("connection lost in the middle of an answer", async ({ page }) => {
+    await page.route("/api/chat", (route) =>
+      route.fulfill({
+        contentType: "text/event-stream",
+        body: sse({ type: "delta", text: "Ich habe eine Lehre gem" }),
+      }),
+    );
+    await enter(page, "Hoi");
+    const output = await outputAfter(page, "Hoi");
+    expect(output).toContain("Ich habe eine Lehre gem");
+    expect(output).toContain("?DEVICE NOT PRESENT ERROR");
+    expect(output).not.toContain("QUELLEN");
+  });
+});
+
+test("boots even when the API is down, and says so", async ({ page }) => {
+  await page.route("/api/session", (route) => route.abort("connectionrefused"));
+  await page.goto("/");
+  await page.getByRole("button", { name: "Boot überspringen" }).click();
+  await expect(page.getByText("LOAD MANASSES V1.0")).toBeVisible();
+  await expect(page.locator("#output").getByText("?DEVICE NOT PRESENT ERROR")).toBeVisible();
+  await expect(page.locator("#output").getByText(/MOCK-MODUS/)).toBeHidden();
 });
 
 test("unknown pages are a C64 FILE NOT FOUND", async ({ page }) => {

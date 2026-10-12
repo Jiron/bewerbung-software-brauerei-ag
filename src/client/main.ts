@@ -1,13 +1,14 @@
 import "./styles/main.css";
 import { App } from "./app.ts";
-import { requireElement } from "./lib/browser.ts";
+import { followVisualViewport, requireElement } from "./lib/browser.ts";
 import { Screen } from "./terminal/screen.ts";
 
+const frame = requireElement<HTMLElement>("frame");
 const screenArea = requireElement<HTMLElement>("screen");
 const screen = new Screen(requireElement("output"), screenArea, requireElement("announcer"));
 
 const app = new App(screen, {
-  frame: requireElement("frame"),
+  frame,
   screenArea,
   suggestions: requireElement("suggestions"),
   skip: requireElement<HTMLButtonElement>("skip"),
@@ -20,5 +21,8 @@ const app = new App(screen, {
     after: requireElement("cursor-after"),
   },
 });
+
+// When the phone keyboard opens, keep the input line in view.
+followVisualViewport(frame, () => screen.follow());
 
 void app.start();

@@ -37,6 +37,25 @@ export function newConversationId(): string {
   ).join("");
 }
 
+/**
+ * Keeps the monitor inside the visible area when an on-screen keyboard opens.
+ * Chrome resizes the layout itself (interactive-widget in the viewport meta);
+ * iOS Safari does not, so the frame follows the visual viewport. Pinch zoom
+ * is left alone: shrinking the frame then would make zooming pointless.
+ */
+export function followVisualViewport(frame: HTMLElement, onChange: () => void): void {
+  const viewport = window.visualViewport;
+  if (!viewport) return;
+  const update = () => {
+    const zoomed = Math.abs(viewport.scale - 1) > 0.01;
+    frame.style.height = zoomed ? "" : `${viewport.height}px`;
+    frame.style.transform = zoomed ? "" : `translateY(${viewport.offsetTop}px)`;
+    onChange();
+  };
+  viewport.addEventListener("resize", update);
+  viewport.addEventListener("scroll", update);
+}
+
 export function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }

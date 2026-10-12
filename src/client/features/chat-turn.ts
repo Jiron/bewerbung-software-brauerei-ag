@@ -55,7 +55,7 @@ export class ChatTurn {
     const status = screen.line(CHAT.tapping, "beer");
     const stopTapping = this.#animateTap(status);
     const answer = screen.block("answer");
-    answer.setAttribute("aria-label", UI.answering);
+    answer.setAttribute("aria-busy", "true");
     const writer = new Typewriter(answer.appendChild(document.createTextNode("")), {
       charsPerSecond: 60,
       instant: () => this.#fastForward || this.#deps.instant(),
@@ -64,9 +64,10 @@ export class ChatTurn {
     this.#writer = writer;
 
     // An object, not two lets: TypeScript does not track assignments made inside the callback.
-    const outcome: { meta: MetaEvent | null; failure: Failure | null } = {
+    const outcome: { meta: MetaEvent | null; failure: Failure | null; done: boolean } = {
       meta: null,
       failure: null,
+      done: false,
     };
 
     try {
@@ -80,10 +81,14 @@ export class ChatTurn {
             outcome.meta = event;
           } else if (event.type === "error") {
             outcome.failure = event;
+          } else if (event.type === "done") {
+            outcome.done = true;
           }
         },
         this.#abort.signal,
       );
+      // A stream that just stops, without "done" or "error", lost its connection.
+      if (!outcome.done && !outcome.failure) outcome.failure = { error: "offline" };
       await writer.end();
     } catch (error) {
       writer.flush();
@@ -99,7 +104,7 @@ export class ChatTurn {
           : { error: "internal" };
     } finally {
       stopTapping();
-      answer.removeAttribute("aria-label");
+      answer.removeAttribute("aria-busy");
     }
 
     if (outcome.failure) {

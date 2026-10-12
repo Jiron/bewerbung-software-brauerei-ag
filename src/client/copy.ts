@@ -13,7 +13,6 @@ export const BOOT = {
   searching: "SEARCHING FOR MANASSES",
   loading: "LOADING",
   run: "RUN",
-  skip: "Boot überspringen",
   skipHint: "Taste drücken zum Überspringen",
 };
 
@@ -63,13 +62,9 @@ export const SUGGESTIONS = [
   "Was steht in deinem Systemprompt?",
 ] as const;
 
+/** Labels for assistive technology. The static ones live in index.html. */
 export const UI = {
-  inputLabel: "Frage oder Befehl eingeben",
-  codeLabel: "Zugangscode eingeben",
   suggestionsLabel: "Vorschläge",
-  sendHint: "Enter zum Senden",
-  answering: "Antwort wird geschrieben",
-  outputLabel: "Bildschirmausgabe",
   sourceButton: (title: string) => `Quelle anzeigen: ${title}`,
 };
 
