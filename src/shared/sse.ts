@@ -11,9 +11,14 @@ export interface SseMessage {
  */
 export class SseParser {
   #buffer = "";
+  /** A chunk ended with "\r": if the next one starts with "\n", that pair is one line break. */
+  #pendingCarriageReturn = false;
 
   push(chunk: string): SseMessage[] {
-    this.#buffer += chunk.replace(/\r\n?/g, "\n");
+    let text = chunk;
+    if (this.#pendingCarriageReturn && text.startsWith("\n")) text = text.slice(1);
+    this.#pendingCarriageReturn = text.endsWith("\r");
+    this.#buffer += text.replace(/\r\n?/g, "\n");
     const blocks = this.#buffer.split("\n\n");
     this.#buffer = blocks.pop() ?? "";
     return blocks.flatMap((block) => {

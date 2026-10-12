@@ -179,6 +179,7 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
         title: displayTitle(section),
         fileTitle: section.fileTitle,
         tier: section.tier,
+        chars: section.content.length,
       })),
       lockedSectionCount: lockedSectionCount(current, tier),
     };
@@ -195,6 +196,7 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
       title: displayTitle(section),
       fileTitle: section.fileTitle,
       tier: section.tier,
+      chars: section.content.length,
       content: section.content,
     };
     return c.json(body);

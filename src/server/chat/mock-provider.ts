@@ -109,11 +109,10 @@ export function composeMockReply(
   }
 
   const used = second && second.score >= best.score * 0.6 ? [best, second] : [best];
-  const intro = english
-    ? "From the can (mock mode, my knowledge base is in German):"
-    : "Aus der Dose (Mock-Modus, keine echte KI):";
+  // The knowledge is German; the real model would translate, the mock just says so.
+  const intro = english ? "Straight from my (German) knowledge base:\n" : "";
   const body = used.map(({ section }) => excerpt(section.content)).join("\n\n");
-  return `${intro}\n${body}\n[[QUELLEN: ${used.map(({ section }) => section.id).join(", ")}]]`;
+  return `${intro}${body}\n[[QUELLEN: ${used.map(({ section }) => section.id).join(", ")}]]`;
 }
 
 function isEnglish(text: string): boolean {
@@ -163,21 +162,29 @@ function score(section: KnowledgeSection, terms: string[]): number {
   return total;
 }
 
-/** The first two sentences, without markdown bullets, at most ~320 characters. */
-function excerpt(content: string): string {
-  const prose = content
+/**
+ * The first three sentences (or bullets) of a section, at most about 320 characters.
+ * Sentences end at ".", "!" or "?" followed by whitespace, so "Node.js" and
+ * ".NET" stay intact.
+ */
+export function excerpt(content: string): string {
+  const pieces = content
     .split("\n")
     .map((line) => line.replace(/^\s*[-*]\s+/, "* ").trim())
     .filter((line) => line && !line.startsWith("#"))
-    .join("\n");
-  const sentences = prose.match(/[^.!?\n]+[.!?]?(\n|\s|$)/g) ?? [prose];
+    .flatMap((line) => (line.startsWith("* ") ? [line] : line.split(/(?<=[.!?])\s+/)));
+
   let text = "";
-  for (const sentence of sentences) {
-    if (text && text.length + sentence.length > 320) break;
-    text += sentence;
-    if (text.split(/[.!?]/).length > 2) break;
+  let previousWasBullet = false;
+  for (const [count, piece] of pieces.entries()) {
+    if (count >= 3 || (text && text.length + piece.length > 320)) break;
+    const isBullet = piece.startsWith("* ");
+    // Bullets get their own line; plain sentences continue the paragraph.
+    if (text) text += isBullet || previousWasBullet ? "\n" : " ";
+    text += piece;
+    previousWasBullet = isBullet;
   }
-  return text.trim();
+  return text;
 }
 
 function sleep(ms: number, signal: AbortSignal): Promise<void> {

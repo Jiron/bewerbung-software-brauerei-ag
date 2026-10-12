@@ -31,6 +31,8 @@ export interface SectionSummary {
   title: string;
   fileTitle: string;
   tier: Tier;
+  /** Length of the raw text, shown as C64 "blocks" in the directory listing. */
+  chars: number;
 }
 
 export interface SectionDetail extends SectionSummary {

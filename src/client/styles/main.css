@@ -1,0 +1,426 @@
+/*
+ * LOAD MANASSES: a Commodore 64 in a browser.
+ *
+ * Colors are the Pepto C64 palette, except the text: the original light blue
+ * on blue has a contrast of 2.3:1. The text here is brightened to 5.4:1 so it
+ * passes WCAG AA. Every tone below is checked against the blue background.
+ */
+
+@font-face {
+  font-family: "Manasses 64";
+  src: url("../fonts/manasses64.otf") format("opentype");
+  font-display: block;
+}
+
+:root {
+  --c64-border: #6c5eb5;
+  --c64-bg: #352879;
+  --c64-fg: #ada4f5; /* 5.4:1 on --c64-bg, with room for the glow */
+  --c64-white: #ffffff; /* 12.1:1 */
+  --c64-dim: #adadad; /* 5.4:1 */
+  --c64-error: #ff8a80; /* 5.3:1 */
+  --c64-beer: #eeee77; /* 9.9:1 */
+  --c64-ok: #9ae29b; /* 7.9:1 */
+
+  /* Pixel fonts are sharpest at multiples of 8px. */
+  --font-size: 16px;
+  --line-height: 1.3;
+  --border-size: clamp(10px, 3vw, 64px);
+
+  color-scheme: dark;
+}
+
+@media (max-width: 479px) {
+  :root {
+    --font-size: 14px;
+    --border-size: 10px;
+  }
+
+  /* Two suggestions and HELP are enough on a phone. */
+  .suggestions .chip:nth-child(3) {
+    display: none;
+  }
+}
+
+@media (min-width: 1100px) and (min-height: 700px) {
+  :root {
+    --font-size: 24px;
+  }
+}
+
+@media (min-width: 2000px) and (min-height: 1200px) {
+  :root {
+    --font-size: 32px;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--c64-border);
+}
+
+body {
+  overflow: hidden;
+  font-family: "Manasses 64", ui-monospace, monospace;
+  font-size: var(--font-size);
+  line-height: var(--line-height);
+  color: var(--c64-fg);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+::selection {
+  background: var(--c64-fg);
+  color: var(--c64-bg);
+}
+
+/* ── Monitor ──────────────────────────────────────────────────────────────── */
+
+.frame {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--border-size) / 3);
+  padding: var(--border-size);
+  padding-left: max(var(--border-size), env(safe-area-inset-left));
+  padding-right: max(var(--border-size), env(safe-area-inset-right));
+  padding-bottom: max(var(--border-size), env(safe-area-inset-bottom));
+  background: var(--c64-border);
+  transition: background-color 0.2s;
+}
+
+.screen {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 0.5em 1ch;
+  background: var(--c64-bg);
+  color: var(--c64-fg);
+  /* A faint phosphor glow. */
+  text-shadow: 0 0 0.25em color-mix(in srgb, currentColor 30%, transparent);
+  scrollbar-width: thin;
+  scrollbar-color: var(--c64-fg) var(--c64-bg);
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+  container-type: inline-size;
+}
+
+.output {
+  display: block;
+}
+
+.line {
+  margin: 0;
+  min-height: calc(var(--line-height) * 1em);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* The boot banner is 39 characters wide; on a phone it shrinks instead of wrapping. */
+.line--fit {
+  font-size: min(1em, calc(100cqi / 39));
+  white-space: pre;
+}
+
+.answer {
+  margin: 0.25em 0;
+}
+
+.sources {
+  margin-top: 0.25em;
+  line-height: 1.6;
+}
+
+.tone-input {
+  color: var(--c64-white);
+}
+
+.tone-dim {
+  color: var(--c64-dim);
+}
+
+.tone-error {
+  color: var(--c64-error);
+}
+
+.tone-beer {
+  color: var(--c64-beer);
+}
+
+.tone-ok {
+  color: var(--c64-ok);
+}
+
+.tone-title {
+  color: var(--c64-white);
+}
+
+.output a {
+  color: var(--c64-white);
+  text-underline-offset: 0.2em;
+}
+
+/* ── Input line with the block cursor ─────────────────────────────────────── */
+
+.prompt {
+  margin: 0;
+}
+
+.prompt__field {
+  position: relative;
+}
+
+.prompt__mirror {
+  min-height: calc(var(--line-height) * 1em);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: var(--c64-white);
+}
+
+.prompt__input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  resize: none;
+  overflow: hidden;
+  font: inherit;
+  line-height: inherit;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  color: transparent;
+  background: transparent;
+  caret-color: transparent;
+  text-shadow: none;
+}
+
+.prompt__input[hidden] {
+  display: none;
+}
+
+.cursor {
+  /* Unfocused: an outlined block, so it is clear the line is not taking input. */
+  box-shadow: inset 0 0 0 0.12em var(--c64-fg);
+  color: var(--c64-white);
+}
+
+.prompt:focus-within .cursor {
+  /* Focused: the reverse-video block of the original, blinking at C64 speed. */
+  box-shadow: none;
+  background: var(--c64-fg);
+  color: var(--c64-bg);
+  animation: blink 1.07s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    background: transparent;
+    color: var(--c64-white);
+  }
+}
+
+/* ── Buttons: reverse video, the C64 way to say "this is special" ─────────── */
+
+.chip {
+  display: inline-block;
+  margin: 0;
+  padding: 0 0.5ch;
+  border: 0;
+  border-radius: 0;
+  font: inherit;
+  line-height: inherit;
+  text-decoration: none;
+  text-shadow: none;
+  text-align: start;
+  color: var(--c64-bg);
+  background: var(--c64-fg);
+  cursor: pointer;
+}
+
+@media (hover: hover) {
+  .chip:hover {
+    background: var(--c64-white);
+  }
+
+  .suggestions .chip:hover {
+    color: var(--c64-bg);
+    background: var(--c64-white);
+  }
+}
+
+.chip:active {
+  background: var(--c64-white);
+}
+
+.chip:focus-visible {
+  outline: 0.15em solid var(--c64-white);
+  outline-offset: 0.15em;
+}
+
+.chip:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+
+.chip--inline {
+  margin-bottom: 0.2em;
+}
+
+/* The border is outside the screen, so the chips there use a smaller scale. */
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5em 1ch;
+  font-size: max(14px, calc(var(--font-size) * 0.67));
+}
+
+.suggestions[hidden] {
+  display: none;
+}
+
+/* Suggestions sit on the light border, so they flip to blue boxes. */
+.suggestions .chip {
+  color: var(--c64-fg);
+  background: var(--c64-bg);
+}
+
+.skip {
+  position: fixed;
+  right: calc(var(--border-size) + 1ch);
+  bottom: calc(var(--border-size) + 0.5em);
+  z-index: 20;
+  font-size: max(14px, calc(var(--font-size) * 0.67));
+}
+
+.skip[hidden] {
+  display: none;
+}
+
+/* ── CRT: scanlines, vignette, flicker ────────────────────────────────────── */
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(to bottom, rgb(0 0 0 / 0.16) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, transparent 60%, rgb(0 0 0 / 0.35) 100%);
+  animation: flicker 6s infinite;
+}
+
+@keyframes flicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  47% {
+    opacity: 0.96;
+  }
+  48% {
+    opacity: 1;
+  }
+  83% {
+    opacity: 0.97;
+  }
+}
+
+.frame.is-powering-on .screen {
+  animation: power-on 0.5s ease-out;
+}
+
+@keyframes power-on {
+  0% {
+    transform: scaleY(0.005);
+    filter: brightness(4);
+  }
+  60% {
+    transform: scaleY(1);
+    filter: brightness(1.6);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
+/* Tape loader stripes in the border while LOADING. */
+.frame.is-loading {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    #6c5eb5 0 7px,
+    #b8c76f 7px 11px,
+    #352879 11px 19px,
+    #70a4b2 19px 23px,
+    #9a6759 23px 31px
+  );
+  background-size: 100% 31px;
+  animation: tape-stripes 0.18s steps(3) infinite;
+}
+
+@keyframes tape-stripes {
+  to {
+    background-position: 0 31px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::after,
+  .frame.is-loading,
+  .frame.is-powering-on .screen,
+  .prompt:focus-within .cursor {
+    animation: none;
+  }
+}
+
+/* ── Misc ─────────────────────────────────────────────────────────────────── */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.noscript {
+  position: fixed;
+  inset: var(--border-size);
+  margin: 0;
+  padding: 1em;
+  background: var(--c64-bg);
+  color: var(--c64-fg);
+}
+
+.screen--static {
+  overflow-y: auto;
+}
+
+@media (forced-colors: active) {
+  .cursor,
+  .prompt:focus-within .cursor {
+    forced-color-adjust: none;
+    background: CanvasText;
+    color: Canvas;
+  }
+}
