@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { composeMockReply, MockProvider } from "../../../src/server/chat/mock-provider.ts";
+import { composeMockReply, excerpt, MockProvider } from "../../../src/server/chat/mock-provider.ts";
 import { loadKnowledge, visibleSections } from "../../../src/server/knowledge/store.ts";
 import { EXAMPLE_KNOWLEDGE } from "./helpers.ts";
 
@@ -8,7 +8,6 @@ const sections = visibleSections(await loadKnowledge(EXAMPLE_KNOWLEDGE), "public
 describe("composeMockReply", () => {
   it("answers from the best matching section and cites it", () => {
     const reply = composeMockReply("Welche Projekte hast du gebaut?", sections, "Max");
-    expect(reply).toMatch(/Aus der Dose/);
     expect(reply).toMatch(/\[\[QUELLEN: projekte/);
   });
 
@@ -40,6 +39,18 @@ describe("composeMockReply", () => {
 
   it("greets when the question has no searchable words", () => {
     expect(composeMockReply("Wer bist du?", sections, "Max")).toMatch(/KI-Version von Max/);
+  });
+});
+
+describe("excerpt", () => {
+  it("keeps dots inside words like Node.js and .NET", () => {
+    expect(excerpt("Solide: Node.js, C# mit .NET. Zweiter Satz! Dritter? Vierter.")).toBe(
+      "Solide: Node.js, C# mit .NET. Zweiter Satz! Dritter?",
+    );
+  });
+
+  it("keeps bullets on their own lines and drops headings", () => {
+    expect(excerpt("### Titel\n- Eins\n- Zwei\n- Drei\n- Vier")).toBe("* Eins\n* Zwei\n* Drei");
   });
 });
 

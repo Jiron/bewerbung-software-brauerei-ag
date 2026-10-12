@@ -11,3 +11,6 @@ playwright-report/
 knowledge/
 *.log
 .DS_Store
+
+# Local tool state
+.claude/
