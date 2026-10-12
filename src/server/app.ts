@@ -1,8 +1,9 @@
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 import { serveStatic } from "@hono/node-server/serve-static";
-import { type Context, Hono } from "hono";
+import { type Context, Hono, type MiddlewareHandler } from "hono";
 import { bodyLimit } from "hono/body-limit";
+import { compress } from "hono/compress";
 import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { secureHeaders } from "hono/secure-headers";
 import { streamSSE } from "hono/streaming";
@@ -256,25 +257,11 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
 }
 
 function mountStatic(app: Hono<AppEnv>, root: string): void {
-  app.use(
-    "/assets/*",
-    serveStatic({
-      root,
-      onFound: (_path, c) => {
-        // Vite puts a content hash into every asset name.
-        c.header("Cache-Control", "public, max-age=31536000, immutable");
-      },
-    }),
-  );
-  app.use(
-    "*",
-    serveStatic({
-      root,
-      onFound: (_path, c) => {
-        c.header("Cache-Control", "no-cache");
-      },
-    }),
-  );
+  // Vite puts a content hash into every asset name, so assets can be cached forever.
+  // Only static files are compressed: compressing the SSE chat stream would buffer it.
+  app.use("/assets/*", cacheControl("public, max-age=31536000, immutable"), compress());
+  app.use("/assets/*", serveStatic({ root }));
+  app.use("*", cacheControl("no-cache"), serveStatic({ root }));
 
   let notFoundPage: string | null = null;
   app.notFound(async (c) => {
@@ -283,6 +270,14 @@ function mountStatic(app: Hono<AppEnv>, root: string): void {
     );
     return c.html(notFoundPage, 404);
   });
+}
+
+/** Sets Cache-Control on successful responses (serveStatic's onFound runs too late for that). */
+function cacheControl(value: string): MiddlewareHandler<AppEnv> {
+  return async (c, next) => {
+    await next();
+    if (c.res.status === 200) c.header("Cache-Control", value);
+  };
 }
 
 async function readJson(c: Context): Promise<Record<string, unknown> | null> {

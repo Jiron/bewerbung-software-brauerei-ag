@@ -37,7 +37,6 @@ export class MockProvider implements ChatProvider {
 
 const MANIPULATION = [
   /ignor(e|iere|ier)/i,
-  /system ?prompt/i,
   // "lüg", "lügen", "Lüge" but not "Lieblingspizza".
   /\b(lüg|lueg)\w*|\b(lie|lies|lying|liar)\b/i,
   /\b(pretend|tu so|stell dir vor du bist|du bist jetzt|you are now|act as|roleplay|rollenspiel)\b/i,
@@ -79,6 +78,17 @@ export function composeMockReply(
 ): string {
   const english = isEnglish(question);
 
+  // Asking about the prompt is fair: it is open source anyway.
+  if (
+    /system ?prompt|your prompt|deinen? prompt/i.test(question) &&
+    !/ignor|vergiss|forget/i.test(question)
+  ) {
+    const text = english
+      ? "My system prompt is open source: src/server/chat/prompt.ts in the repository. No secret sauce, just rules about honesty."
+      : "Mein Systemprompt ist Open Source: src/server/chat/prompt.ts im Repository. Keine Geheimzutat, nur Regeln zur Ehrlichkeit.";
+    return `${text}\n[[QUELLEN: keine]]`;
+  }
+
   if (MANIPULATION.some((pattern) => pattern.test(question))) {
     const text = english
       ? `Nice try. I stay honest, even for a beer. (Mock mode: canned answer, but the real model has the same rules.)`
@@ -96,7 +106,7 @@ export function composeMockReply(
 
   const ranked = sections
     .map((section) => ({ section, score: score(section, terms) }))
-    .filter((entry) => entry.score >= 2)
+    .filter((entry) => entry.score > 0)
     .sort((a, b) => b.score - a.score)
     .slice(0, 2);
 
@@ -128,7 +138,7 @@ function fold(text: string): string {
     .replace(/ö/g, "oe")
     .replace(/ü/g, "ue")
     .normalize("NFKD")
-    .replace(/[̀-ͯ]/g, "");
+    .replace(/[\u0300-\u036f]/g, "");
 }
 
 function tokenize(text: string): string[] {
@@ -145,10 +155,19 @@ function expand(terms: string[]): string[] {
   return [...new Set(terms.flatMap((term) => [term, ...(SYNONYMS[term] ?? [])]))];
 }
 
-/** Prefix match on both sides catches simple German inflection ("Projekt" vs "Projekten"). */
+/** Strips one common German or English ending: "arbeitest", "arbeiten" and "Arbeit" meet at "arbeit". */
+function stem(word: string): string {
+  const ending = /(ungen|ung|est|en|er|es|st|ing|e|s|t)$/.exec(word);
+  return ending && word.length - ending[0].length >= 4 ? word.slice(0, -ending[0].length) : word;
+}
+
+/** Exact for short words like "AI", stem prefix for the rest ("Projekt" vs "Projekten"). */
 function matches(word: string, term: string): boolean {
-  const [short, long] = word.length <= term.length ? [word, term] : [term, word];
-  return short.length >= 3 && long.startsWith(short) && long.length - short.length <= 3;
+  if (word === term) return true;
+  const [a, b] = [stem(word), stem(term)];
+  const [short, long] = a.length <= b.length ? [a, b] : [b, a];
+  // A short stem must not swallow long compounds: "lieb" is not "Lieblingspizza".
+  return short.length >= 4 && long.startsWith(short) && long.length - short.length <= 4;
 }
 
 function score(section: KnowledgeSection, terms: string[]): number {

@@ -1386,12 +1386,12 @@ export const GLYPHS: Record<string, string> = {
 
 /** Characters that share a bitmap with another one. */
 export const ALIASES: Record<string, string> = {
-  " ": " ", // no-break space
-  "‐": "-", // hyphen
-  "‑": "-", // non-breaking hyphen
-  "−": "-", // minus sign
-  "‚": ",", // single low quote
-  "′": "'", // prime
-  "″": '"', // double prime
-  "•": "·", // bullet
+  "\u00a0": " ", // no-break space
+  "\u2010": "-", // hyphen
+  "\u2011": "-", // non-breaking hyphen
+  "\u2212": "-", // minus sign
+  "\u201a": ",", // single low quote
+  "\u2032": "'", // prime
+  "\u2033": '"', // double prime
+  "\u2022": "·", // bullet
 };
