@@ -23,7 +23,7 @@ test.describe("errors stay in character", () => {
     );
     await enter(page, "Noch eine Frage");
     const output = await outputAfter(page, "Noch eine Frage");
-    expect(output).toContain("?OVERFLOW ERROR");
+    expect(output).toContain("?OVERFLOW  ERROR");
     expect(output).toContain("Hey, nicht so hastig!");
     expect(output).toContain("42 Sekunden");
   });
@@ -37,7 +37,7 @@ test.describe("errors stay in character", () => {
     );
     await enter(page, "Hoi");
     const output = await outputAfter(page, "Hoi");
-    expect(output).toContain("?FASS LEER ERROR");
+    expect(output).toContain("?FASS LEER  ERROR");
     expect(output).toContain("RUN CV");
   });
 
@@ -49,7 +49,7 @@ test.describe("errors stay in character", () => {
       }),
     );
     await enter(page, "Hoi");
-    expect(await outputAfter(page, "Hoi")).toContain("?DEVICE NOT PRESENT ERROR");
+    expect(await outputAfter(page, "Hoi")).toContain("?DEVICE NOT PRESENT  ERROR");
   });
 
   test("server unreachable", async ({ page }) => {
@@ -68,7 +68,7 @@ test.describe("errors stay in character", () => {
     await enter(page, "Hoi");
     const output = await outputAfter(page, "Hoi");
     expect(output).toContain("Ich habe eine Lehre gem");
-    expect(output).toContain("?DEVICE NOT PRESENT ERROR");
+    expect(output).toContain("?DEVICE NOT PRESENT  ERROR");
     expect(output).not.toContain("QUELLEN");
   });
 });
@@ -78,14 +78,14 @@ test("boots even when the API is down, and says so", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "Boot überspringen" }).click();
   await expect(page.getByText("LOAD MANASSES V1.0")).toBeVisible();
-  await expect(page.locator("#output").getByText("?DEVICE NOT PRESENT ERROR")).toBeVisible();
+  await expect(page.locator("#output").getByText("?DEVICE NOT PRESENT  ERROR")).toBeVisible();
   await expect(page.locator("#output").getByText(/MOCK-MODUS/)).toBeHidden();
 });
 
 test("unknown pages are a C64 FILE NOT FOUND", async ({ page }) => {
   const response = await page.goto("/jobs/senior-println-debugger");
   expect(response?.status()).toBe(404);
-  await expect(page.getByText("?FILE NOT FOUND ERROR")).toBeVisible();
+  await expect(page.getByText("?FILE NOT FOUND  ERROR")).toBeVisible();
   await expect(page.getByText("SEARCHING FOR JOBS/SENIOR-PRINTLN-DEBUGGER")).toBeVisible();
   await page.getByRole("link", { name: 'LOAD "MANASSES",8,1' }).click();
   await expect(page).toHaveURL("/");

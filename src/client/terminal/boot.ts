@@ -45,7 +45,8 @@ export class BootSequence {
     frame.classList.remove("is-powering-on");
 
     screen.line("");
-    screen.line(BOOT.banner, "title", { fit: true });
+    // Light blue like the rest of the boot screen, just as on the original.
+    screen.line(BOOT.banner, "default", { fit: true });
     screen.line("");
     screen.line(BOOT.ram, "default", { fit: true });
     screen.line("");

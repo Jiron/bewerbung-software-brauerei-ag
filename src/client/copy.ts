@@ -81,38 +81,39 @@ export const CHAT = {
   break: "BREAK",
 };
 
+/** Two spaces before ERROR: the BASIC ROM stores the word as "  ERROR". */
 export const ERRORS = {
   rateLimited: (seconds: number) => ({
-    code: "?OVERFLOW ERROR",
+    code: "?OVERFLOW  ERROR",
     text: `Hey, nicht so hastig! Selbst ein gutes Bier braucht seine Zeit. Nächste Frage in ${seconds} Sekunden.`,
   }),
   tooLong: (max: number) => ({
-    code: "?STRING TOO LONG ERROR",
+    code: "?STRING TOO LONG  ERROR",
     text: `Höchstens ${max} Zeichen. Kurz und knackig, wie eine gute Commit-Message.`,
   }),
   spendCap: {
-    code: "?FASS LEER ERROR",
+    code: "?FASS LEER  ERROR",
     text: "Das KI-Budget für heute ist ausgeschenkt. Morgen wird ein neues Fass angestochen. Bis dahin funktionieren RUN CV, LIST und LIST <ID> weiter, ganz ohne KI.",
   },
   unavailable: {
-    code: "?DEVICE NOT PRESENT ERROR",
-    text: "Die KI antwortet gerade nicht. Vermutlich steht sie am Barista. Versuchs gleich nochmal.",
+    code: "?DEVICE NOT PRESENT  ERROR",
+    text: "Die KI antwortet gerade nicht. Vermutlich holt sie sich einen Barista-Kaffee. Versuchs gleich nochmal.",
   },
   offline: {
-    code: "?DEVICE NOT PRESENT ERROR",
+    code: "?DEVICE NOT PRESENT  ERROR",
     text: "Keine Verbindung zum Server. Liegt es am WLAN oder an der Datasette?",
   },
   refusal: {
-    code: "?CAN'T CONTINUE ERROR",
+    code: "?CAN'T CONTINUE  ERROR",
     text: "Dazu sage ich nichts. Frag mich lieber etwas über meine Arbeit.",
   },
   internal: {
     code: "?REDO FROM START",
     text: "Da ist etwas schiefgelaufen. Bitte nochmal fragen.",
   },
-  notFound: "?FILE NOT FOUND ERROR",
-  syntax: "?SYNTAX ERROR",
-  illegalQuantity: "?ILLEGAL QUANTITY ERROR",
+  notFound: "?FILE NOT FOUND  ERROR",
+  syntax: "?SYNTAX  ERROR",
+  illegalQuantity: "?ILLEGAL QUANTITY  ERROR",
 };
 
 export const ACCESS = {
@@ -120,16 +121,16 @@ export const ACCESS = {
   checking: "PRÜFE CODE...",
   granted: "ACCESS GRANTED.",
   grantedText: (count: number) =>
-    `${count} private Abschnitte geladen. Willkommen im Hinterzimmer, die Zapfanlage steht links. Frag mich jetzt auch nach Details.`,
+    `${count} private Abschnitte geladen. Willkommen im Hinterzimmer. Frag mich jetzt auch nach Details.`,
   wrongCode: (attemptsLeft: number) =>
     attemptsLeft === 1 ? "Noch ein Versuch." : `Noch ${attemptsLeft} Versuche.`,
   lockedOut: {
-    code: "?TOO MANY FILES ERROR",
+    code: "?TOO MANY FILES  ERROR",
     text: (minutes: number) =>
       `Zu viele falsche Codes. Kurze Abkühlpause, in ${minutes} ${minutes === 1 ? "Minute" : "Minuten"} gehts wieder.`,
   },
   unavailable: {
-    code: "?ILLEGAL DEVICE NUMBER ERROR",
+    code: "?ILLEGAL DEVICE NUMBER  ERROR",
     text: "Auf diesem Server gibt es keinen privaten Bereich.",
   },
   alreadyUnlocked: "Schon freigeschaltet. LOGOUT sperrt wieder.",
@@ -162,7 +163,7 @@ export const SYSTEM = {
   newConversation: "Gespräch vergessen. Wie ein Goldfisch, nur mit Lebenslauf.",
   about: [
     "LOAD MANASSES: eine Bewerbung als C64.",
-    "Gebaut mit TypeScript, Hono, Vite und Claude Haiku. Die Schrift ist Pixel für Pixel von Hand gezeichnet, die Farben sind für besseren Kontrast etwas heller als auf dem Original. Sorry, Commodore.",
+    "Gebaut mit TypeScript, Hono, Vite und Claude Haiku. Die Schrift ist eine eigene 8x8-Pixelschrift, die Farben sind für besseren Kontrast etwas heller als auf dem Original. Sorry, Commodore.",
     "Ehrlich gebaut mit AI: Wie das lief und wo der Agent danebenlag, steht im Repository in AI-WORKFLOW.md.",
   ],
   repo: "Open Source:",
@@ -173,18 +174,18 @@ export const SYSTEM = {
 export const EASTER_EGGS = {
   alreadyLoaded: "Schon geladen. Du redest gerade mit mir.",
   lineNumbers: {
-    code: "?OUT OF MEMORY ERROR",
+    code: "?OUT OF MEMORY  ERROR",
     text: "BASIC mit Zeilennummern? Respekt. Leider ist mein Speicher voll mit Lebenslauf, hier gibts nur den Direktmodus.",
   },
   goto: {
-    code: "?UNDEF'D STATEMENT ERROR",
+    code: "?UNDEF'D STATEMENT  ERROR",
     text: "GOTO gilt seit 1968 als schädlich. Ich halte mich dran.",
   },
   kicker:
     "Kicker-Statistik: nicht in der Wissensbasis. Ehrlich gesagt spielt die KI-Version gar nicht. Klären wir am Dienstag im Office.",
   jfdi: "JUST FUCKING DO IT. Mit Tests. Und einem Diff, den jemand gelesen hat.",
   amiga: {
-    code: "?WRONG MACHINE ERROR",
+    code: "?WRONG MACHINE  ERROR",
     text: "Freie Hardware-Wahl, ich weiss. Aber hier läuft ein C64.",
   },
   macbook: "Gute Wahl. Liegt aber nicht im Brotkasten.",
@@ -192,15 +193,15 @@ export const EASTER_EGGS = {
   rmrf: "Hier gibt es nichts zu löschen ausser dem Bildschirm. Dafür gibts CLR.",
   beer: "Prost! Gilt ausdrücklich nicht als Bestechung.",
   noBugs: {
-    code: "?PROMPT TOO VAGUE ERROR",
+    code: "?PROMPT TOO VAGUE  ERROR",
     text: "Und bitte nicht direkt auf Prod deployen.",
   },
   println: {
-    code: "?WRONG LANGUAGE ERROR",
+    code: "?WRONG LANGUAGE  ERROR",
     text: "Und println-Debugging haben wir doch hinter uns, oder?",
   },
   papierkorb: {
-    code: "?PAPIERKORB ERROR",
+    code: "?PAPIERKORB  ERROR",
     text: "Dieser Anfang landet bei euch direkt im Papierkorb. Versuchs ohne Floskel.",
   },
   jira: "Keine Projekt-Nanny gefunden. Gut so.",

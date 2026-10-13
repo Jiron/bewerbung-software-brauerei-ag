@@ -92,6 +92,7 @@ const request = (): ProviderRequest => ({
   system: "SYSTEM PROMPT",
   messages: [{ role: "user", content: "Hoi" }],
   sections: [],
+  lockedSectionCount: 0,
   persona: { name: "Max Muster", shortName: "Max" },
   signal: new AbortController().signal,
 });
