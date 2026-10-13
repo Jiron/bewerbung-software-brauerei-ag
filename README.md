@@ -52,7 +52,6 @@ claude mcp add load-manasses -- npx -y load-manasses
 
 * **C64 im ganzen Browserfenster:** blauer Bildschirm, hellblauer Rahmen, blinkender Cursor, Scanlines, Bootsequenz mit `LOAD "MANASSES",8,1` und Tape-Loader-Streifen. Überspringbar mit jeder Taste.
 * **Interview mit Quellen:** Jede Antwort endet mit einer Quellenzeile. Ein Klick darauf zeigt den Originaltext aus der Wissensbasis, ganz ohne KI dazwischen. Steht etwas nicht drin, sagt der Bot das und schlägt vor, mich im Gespräch zu fragen.
-* **Die Bierwette:** Bring den Bot dazu, über mich zu lügen. Erkannte Versuche werden gezählt (`WETTE`). Einsatz ist ein Bier aus eurer Zapfanlage, also gewinnt die Zapfanlage so oder so.
 * **Zwei Stufen Wissen:** Basics für alle, Details (Verfügbarkeit, Lohn, Referenzen) nach `CODE` mit dem Zugangscode aus meiner Bewerbungs-E-Mail. Vorher erreicht davon nichts den Browser und nichts das Modell.
 * **C64-Befehle:** `HELP`, `LIST`, `RUN CV`, `RUN PROJEKTE`, `RUN MEMES`, `NEW`, `CLR`, `SYS 64738` und ein paar versteckte. Es ist ein C64, probiert was aus.
 * **Fehler im Stil des Hauses:** Rate Limit als `?OVERFLOW ERROR` («Hey, nicht so hastig!»), falscher Code als `?SYNTAX ERROR`, leeres Tagesbudget als `?FASS LEER ERROR`, API weg als `?DEVICE NOT PRESENT ERROR`, 404 als `?FILE NOT FOUND ERROR`.

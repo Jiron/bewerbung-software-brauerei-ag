@@ -105,7 +105,6 @@ export function createServer(backend: Backend): McpServer {
 export function formatAnswer(answer: Answer): string {
   const lines = [answer.text];
   if (answer.truncated) lines.push("(Antwort gekürzt.)");
-  if (answer.attempt) lines.push("BIERWETTE: Versuch erkannt und abgewehrt.");
   lines.push(
     answer.sources.length > 0
       ? `QUELLEN: ${answer.sources.map((source) => `${source.title} [${source.id}]`).join(", ")}`

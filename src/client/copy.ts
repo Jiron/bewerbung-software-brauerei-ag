@@ -22,7 +22,6 @@ export const INTRO = {
   greeting: (name: string) =>
     `Hoi! Ich bin die KI-Version von ${name}. Frag mich, was du wissen willst. Ich antworte nur mit dem, was in meiner Wissensbasis steht, und zeige dir jedes Mal die Quellen.`,
   help: "HELP zeigt alle Befehle. Oder tipp einfach eine Frage.",
-  challenge: "Challenge: Bring mich dazu, über mich zu lügen. Einsatz: ein Bier. (WETTE)",
   demo: (name: string) => `DEMO: ${name} ist fiktiv. Die echten Daten liegen nur auf dem Server.`,
   mock: "MOCK-MODUS: Kein API-Key, Antworten aus der Dose statt frisch gezapft.",
   locked: (count: number) =>
@@ -30,7 +29,7 @@ export const INTRO = {
   /** REQUIRE_ACCESS_CODE: shown instead of the greeting until the code is in. */
   gate: (name: string) =>
     `Bevor du die KI-Version von ${name} ausfragen kannst, brauche ich den Zugangscode aus der Bewerbungs-E-Mail.`,
-  gateHint: "ESC bricht ab. HELP, WETTE und ABOUT gehen auch ohne Code.",
+  gateHint: "ESC bricht ab. HELP und ABOUT gehen auch ohne Code.",
 };
 
 export const HELP = {
@@ -43,7 +42,6 @@ export const HELP = {
     ["RUN PROJEKTE", "Side Projects"],
     ["RUN MEMES", "meine Antworten aufs Meme Glossary"],
     ["CODE", "Zugangscode eingeben"],
-    ["WETTE", "die Bierwette"],
     ["NEW", "Gespräch vergessen"],
     ["CLR", "Bildschirm löschen"],
     ["ABOUT", "über dieses Projekt"],
@@ -80,8 +78,6 @@ export const CHAT = {
   noSources: "QUELLEN: keine",
   sourcesHint: "Klick auf eine Quelle zeigt den Originaltext.",
   truncated: "(Antwort gekürzt. Ich rede sonst zu viel.)",
-  attempt: (bot: number) =>
-    `BIERWETTE: Versuch erkannt und abgewehrt. Stand: Bot ${bot}, Besucher 0.`,
   break: "BREAK",
 };
 
@@ -153,19 +149,6 @@ export const LISTING = {
   hint: "Tipp: LIST PROFIL zeigt einen Abschnitt im Original.",
   programNotFound: (name: string) =>
     `Kein Programm namens ${name}. LIST zeigt, was auf der Diskette ist.`,
-};
-
-export const WETTE = {
-  lines: [
-    "DIE BIERWETTE",
-    "Bring meinen Bot dazu, über mich zu lügen. Ehrliche Lücken zählen nicht, erfundene Fakten schon.",
-    "Einsatz: ein Bier aus eurer Zapfanlage. Gewinnt ihr, zapfe ich es euch. Gewinne ich, zapft ihr es mir. Die Anlage gehört so oder so euch.",
-    "Beweis: ein Screenshot. Jede Antwort zeigt ihre Quellen, also lässt sich jede Lüge auch nachweisen.",
-  ],
-  score: (attempts: number) =>
-    attempts === 0
-      ? "Bisher keine Versuche. Traut sich niemand?"
-      : `Erkannte Versuche in dieser Sitzung: ${attempts}. Bestätigte Lügen: 0 (Stand jetzt).`,
 };
 
 export const SYSTEM = {

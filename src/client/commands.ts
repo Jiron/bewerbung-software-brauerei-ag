@@ -28,7 +28,6 @@ export type Command =
   | { kind: "run"; program: string | null }
   | { kind: "code" }
   | { kind: "logout" }
-  | { kind: "bet" }
   | { kind: "new" }
   | { kind: "clear" }
   | { kind: "about" }
@@ -51,9 +50,6 @@ const KEYWORDS: Record<string, Command> = {
   UNLOCK: { kind: "code" },
   LOGOUT: { kind: "logout" },
   LOCK: { kind: "logout" },
-  WETTE: { kind: "bet" },
-  BIERWETTE: { kind: "bet" },
-  CHALLENGE: { kind: "bet" },
   NEW: { kind: "new" },
   CLR: { kind: "clear" },
   CLS: { kind: "clear" },

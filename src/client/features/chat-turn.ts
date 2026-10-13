@@ -11,8 +11,6 @@ export interface ChatTurnDeps {
   maxMessageLength: number;
   /** True when text should appear without the typewriter (reduced motion). */
   instant: () => boolean;
-  /** Records a detected manipulation attempt and returns the new total. */
-  recordAttempt: () => number;
   showSource: (id: string) => void;
 }
 
@@ -128,7 +126,6 @@ export class ChatTurn {
   #printMeta(meta: MetaEvent | null): void {
     const { screen } = this.#deps;
     if (meta?.truncated) screen.line(CHAT.truncated, "dim");
-    if (meta?.attempt) screen.line(CHAT.attempt(this.#deps.recordAttempt()), "beer");
     if (!meta || meta.sources.length === 0) {
       screen.line(CHAT.noSources, "dim");
       return;
