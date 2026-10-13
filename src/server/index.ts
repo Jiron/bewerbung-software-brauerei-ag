@@ -73,7 +73,11 @@ async function main(): Promise<void> {
       model: provider.model,
       knowledge: config.usingExampleKnowledge ? "example (fictional persona)" : config.knowledgeDir,
       sections: knowledge.current.sections.length,
-      unlock: config.accessCodeHash ? "enabled" : "disabled",
+      unlock: !config.accessCodeHash
+        ? "disabled"
+        : config.requireAccessCode
+          ? "required for everything"
+          : "private sections",
       dailySpendCapUsd: config.dailySpendCapUsd,
     });
     if (config.sessionSecretIsEphemeral && config.accessCodeHash) {

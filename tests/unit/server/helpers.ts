@@ -54,6 +54,7 @@ export async function createTestApp(options: TestAppOptions = {}) {
   const app = createApp({
     config: {
       accessCodeHash: options.withAccessCode === false ? null : await testHash(),
+      requireAccessCode: false,
       sessionSecret: "test-secret-that-is-long-enough-for-hmac",
       sessionTtlHours: 1,
       maxMessageLength: 500,

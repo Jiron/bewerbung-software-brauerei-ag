@@ -19,9 +19,11 @@ export interface SessionInfo {
   demo: boolean;
   persona: Persona;
   limits: { maxMessageLength: number };
-  /** Number of private sections. Never their titles: those stay server-side until unlock. */
+  /** Number of locked sections. Never their titles: those stay server-side until unlock. */
   lockedSectionCount: number;
   unlockAvailable: boolean;
+  /** REQUIRE_ACCESS_CODE: before unlock, no section is visible and no question reaches the AI. */
+  accessRequired: boolean;
   repoUrl: string | null;
 }
 
@@ -64,6 +66,7 @@ export type ApiErrorCode =
   | "wrong_code"
   | "locked_out"
   | "unlock_unavailable"
+  | "locked"
   | "not_found"
   | "internal";
 
