@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { FLACHWITZE } from "../../src/client/jokes.ts";
 import { boot, E2E_CODE, enter, outputAfter } from "./fixtures.ts";
 
 test.describe("boot", () => {
@@ -104,6 +105,21 @@ test.describe("commands", () => {
 
     await enter(page, "RUN CV");
     expect(await outputAfter(page, "RUN CV")).toContain("WERDEGANG: AUSBILDUNG");
+
+    // The file has an intro before its first heading; RUN still shows every meme.
+    await enter(page, "RUN MEMES");
+    const memes = await outputAfter(page, "RUN MEMES");
+    expect(memes).toContain("Meine Antworten auf euer Meme Glossary");
+    expect(memes).toContain("MEME GLOSSARY: HONESTY");
+    expect(memes).toContain("MEME GLOSSARY: HAVE FUN");
+  });
+
+  test("FLACHWITZ tells a whole joke, setup first", async ({ page }) => {
+    await enter(page, "FLACHWITZ");
+    const output = await outputAfter(page, "FLACHWITZ");
+    const told = FLACHWITZE.find(([setup]) => output.startsWith(setup));
+    expect(told).toBeDefined();
+    expect(output).toContain(told?.[1] ?? "?");
   });
 
   test("unknown programs and BASIC look in character", async ({ page }) => {

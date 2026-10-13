@@ -35,6 +35,7 @@ export type Command =
   | { kind: "load"; name: string }
   | { kind: "syntaxError" }
   | { kind: "airhockey" }
+  | { kind: "joke" }
   | { kind: "easterEgg"; egg: EasterEgg }
   | { kind: "question"; text: string };
 
@@ -61,6 +62,10 @@ const KEYWORDS: Record<string, Command> = {
   AIRHOCKEY: { kind: "airhockey" },
   "AIR HOCKEY": { kind: "airhockey" },
   "RUN AIRHOCKEY": { kind: "airhockey" },
+  FLACHWITZ: { kind: "joke" },
+  WITZ: { kind: "joke" },
+  DADJOKE: { kind: "joke" },
+  "DAD JOKE": { kind: "joke" },
 };
 
 const EGGS: Record<string, EasterEgg> = {

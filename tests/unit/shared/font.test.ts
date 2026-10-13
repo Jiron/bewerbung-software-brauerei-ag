@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { buildFont, OUTPUT, parseGlyph, traceOutlines } from "../../../scripts/font/build-font.ts";
 import { ALIASES, GLYPHS } from "../../../scripts/font/glyphs.ts";
 import * as copy from "../../../src/client/copy.ts";
+import { FLACHWITZE } from "../../../src/client/jokes.ts";
 
 function strings(value: unknown): string[] {
   if (typeof value === "string") return [value];
@@ -20,7 +21,9 @@ describe("Manasses 64 font", () => {
 
   it("covers every character the UI prints", () => {
     const available = new Set([...Object.keys(GLYPHS), ...Object.keys(ALIASES), "\n"]);
-    const used = new Set(strings(copy).flatMap((text) => Array.from(text)));
+    const used = new Set(
+      [...strings(copy), ...strings(FLACHWITZE)].flatMap((text) => Array.from(text)),
+    );
     const missing = [...used].filter((char) => !available.has(char));
     expect(missing).toEqual([]);
   });

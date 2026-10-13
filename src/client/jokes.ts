@@ -1,0 +1,67 @@
+/**
+ * FLACHWITZ: well-known bad jokes, setup first, punchline after a pause.
+ * Folklore, none of them invented here. Like copy.ts, every line is checked
+ * by the house-style and font tests.
+ */
+
+export type Joke = readonly [setup: string, punchline: string];
+
+export const FLACHWITZE: readonly Joke[] = [
+  ["Was ist orange und läuft durch den Wald?", "Eine Wanderine."],
+  ["Was ist grün und steht vor der Tür?", "Ein Klopfsalat."],
+  ["Was ist braun, klebrig und läuft durch die Wüste?", "Ein Karamel."],
+  ["Was ist weiss und stört beim Essen?", "Eine Lawine."],
+  ["Was ist gelb und kann schiessen?", "Eine Banone."],
+  ["Wie heisst ein Spanier ohne Auto?", "Carlos."],
+  ["Wie heisst der Bruder von Elvis?", "Elzwo."],
+  ["Wie heisst die Frau von Hulk?", "Hulda."],
+  ["Was macht ein Clown im Büro?", "Faxen."],
+  ["Was macht ein Mathematiker im Garten?", "Wurzeln ziehen."],
+  ["Was ist ein Cowboy ohne Pferd?", "Ein Sattelschlepper."],
+  ["Was ist ein studierter Bauer?", "Ein Ackerdemiker."],
+  ["Was ist ein Keks unter einem Baum?", "Ein schattiges Plätzchen."],
+  ["Was sagt ein Gen, wenn es ein anderes trifft?", "Halogen."],
+  ["Was trinken Chefs?", "Leitungswasser."],
+  ["Wo wohnen Katzen?", "Im Miezhaus."],
+  ["Was macht ein Dieb im Zirkus?", "Er klaut die Show."],
+  ["Warum summen Bienen?", "Weil sie den Text vergessen haben."],
+  ["Warum gehen Ameisen nicht in die Kirche?", "Weil sie Insekten sind."],
+  ["Was ist braun und sitzt hinter Gittern?", "Eine Knastanie."],
+  ["Wie nennt man ein Schaf ohne Beine?", "Eine Wolke."],
+  ["Wie nennt man einen Fisch ohne Auge?", "Fsch."],
+  ["Wie nennt man einen Bumerang, der nicht zurückkommt?", "Stock."],
+  ["Was ist klein, grün und dreieckig?", "Ein kleines grünes Dreieck."],
+  ["Was ist grün und hat Räder?", "Gras. Das mit den Rädern war gelogen."],
+  ["Was hat vier Beine und kann fliegen?", "Zwei Vögel."],
+  ["Was ist grün und hüpft durch den Wald?", "Ein Rudel Gurken."],
+  ["Warum stehen Störche auf einem Bein?", "Weil sie sonst umfallen würden."],
+  ["Warum können Seeräuber keinen Kreis berechnen?", "Weil sie Pi raten."],
+  ["Was macht ein Pirat am Computer?", "Er drückt die Enter-Taste."],
+  ["Was macht eine Wolke mit Juckreiz?", "Sie fliegt zum Wolkenkratzer."],
+  ["Warum können Geister so schlecht lügen?", "Weil man durch sie hindurchsieht."],
+  ["Warum trägt der Lehrer eine Sonnenbrille?", "Weil seine Klasse so hell ist."],
+  ["Was sagt der grosse Stift zum kleinen Stift?", "Wachs mal, Stift!"],
+  ["Was macht man mit einem Hund ohne Beine?", "Um die Häuser ziehen."],
+  ["Was ist ein Skelett im Schrank?", "Der Gewinner vom Versteckspiel letztes Jahr."],
+  ["Treffen sich zwei Magnete.", "Sagt der eine: «Was soll ich heute bloss anziehen?»"],
+  ["Treffen sich zwei Jäger.", "Beide tot."],
+  ["Kommt ein Pferd in eine Bar.", "Fragt der Barkeeper: «Warum so ein langes Gesicht?»"],
+  ["Ich habe ein Buch über Antigravitation gekauft.", "Ich kann es nicht mehr aus der Hand legen."],
+  ["Es gibt 10 Arten von Menschen.", "Die, die Binär verstehen, und die anderen."],
+  ["Warum verwechseln Programmierer Halloween und Weihnachten?", "Weil OCT 31 gleich DEC 25 ist."],
+  [
+    "Wie viele Programmierer braucht man, um eine Glühbirne zu wechseln?",
+    "Keinen. Das ist ein Hardwareproblem.",
+  ],
+  ["Ein SQL-Query kommt in eine Bar, geht zu zwei Tischen und fragt:", "«Darf ich euch joinen?»"],
+  [
+    "Ein Programmierer soll einkaufen: «Hol ein Brot, und wenn sie Eier haben, nimm sechs.»",
+    "Er kommt mit sechs Broten zurück.",
+  ],
+  ["Warum mögen Programmierer die Natur nicht?", "Zu viele Bugs."],
+  ["«Klopf, klopf.» «Wer ist da?»", "(sehr lange Pause) «Java.»"],
+  ["Ich würde euch ja einen UDP-Witz erzählen.", "Aber ich weiss nicht, ob er ankommt."],
+  ["Wie nennt man acht Hobbits?", "Ein Hobbyte."],
+  ["Was antwortet ein C64, wenn man ihn um ein Date bittet?", "READY."],
+  ["Warum ist ein C64 nie gestresst?", "Er hat immer 38911 Bytes frei."],
+];
