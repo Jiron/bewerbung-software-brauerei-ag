@@ -34,7 +34,7 @@ Unit-Tests für die Logik, End-to-End-Tests auf Desktop und Mobile, Barrierefrei
 
 **Beweis:** [`tests/`](tests/) und [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
 
-## Surprise, M*therf*cker
+## Surprise, M\*therf+cker
 
 > Nicht mit Software, die um die Ohren fliegt, sondern mit Dingen, die man so gar nicht erwartet hätte.
 
