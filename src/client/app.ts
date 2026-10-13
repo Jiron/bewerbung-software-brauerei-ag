@@ -366,7 +366,10 @@ export class App {
     screen.line(HELP.heading, "title");
     const width = Math.max(...HELP.commands.map(([name]) => name.length)) + 2;
     for (const [name, description] of HELP.commands) {
-      screen.line(`${name.padEnd(width)}${description}`);
+      const row = screen.line();
+      row.classList.add("help-row");
+      row.style.setProperty("--key-width", `${width}ch`);
+      row.append(element("span", { text: name }), element("span", { text: description }));
     }
     screen.line("");
     screen.line(HELP.keys, "dim");

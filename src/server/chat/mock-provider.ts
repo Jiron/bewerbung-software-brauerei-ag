@@ -24,7 +24,12 @@ export class MockProvider implements ChatProvider {
 
   async *stream(request: ProviderRequest): AsyncIterable<ProviderEvent> {
     const question = request.messages.findLast((turn) => turn.role === "user")?.content ?? "";
-    const reply = composeMockReply(question, request.sections, request.persona.shortName);
+    const reply = composeMockReply(
+      question,
+      request.sections,
+      request.persona.shortName,
+      request.lockedSectionCount,
+    );
 
     for (const piece of reply.match(/\S+\s*|\s+/g) ?? []) {
       if (this.#delayMs > 0) await sleep(this.#delayMs, request.signal);
@@ -75,6 +80,7 @@ export function composeMockReply(
   question: string,
   sections: KnowledgeSection[],
   firstName: string,
+  lockedSectionCount = 0,
 ): string {
   const english = isEnglish(question);
 
@@ -112,6 +118,13 @@ export function composeMockReply(
 
   const [best, second] = ranked;
   if (!best) {
+    // Like the real prompt: the answer might sit in a locked section.
+    if (lockedSectionCount > 0) {
+      const text = english
+        ? `I find nothing on that in the public part, and I will not make something up. Maybe it is in the private part (command CODE), otherwise ask ${firstName} in the interview.`
+        : `Im öffentlichen Teil finde ich dazu nichts, und erfinden gibts bei mir nicht. Vielleicht steht es im privaten Teil (Befehl CODE), sonst frag ${firstName} am besten im Interview.`;
+      return `${text}\n[[QUELLEN: keine]]`;
+    }
     const text = english
       ? `That is not in my knowledge base, so I will not make something up. Better ask ${firstName} directly in the interview.`
       : `Das steht nicht in meiner Wissensbasis, und erfinden gibts bei mir nicht. Frag ${firstName} am besten im Interview direkt.`;

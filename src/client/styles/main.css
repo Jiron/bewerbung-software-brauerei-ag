@@ -35,11 +35,6 @@
     --font-size: 14px;
     --border-size: 10px;
   }
-
-  /* Two suggestions and HELP are enough on a phone. */
-  .suggestions .chip:nth-child(3) {
-    display: none;
-  }
 }
 
 @media (min-width: 1100px) and (min-height: 700px) {
@@ -134,6 +129,22 @@ body {
   white-space: pre;
 }
 
+/* HELP: command and description in two columns, stacked when 40 columns do not fit. */
+.help-row {
+  display: grid;
+  grid-template-columns: var(--key-width) 1fr;
+}
+
+@container (width < 40ch) {
+  .help-row {
+    grid-template-columns: 1fr;
+  }
+
+  .help-row > :last-child {
+    padding-left: 2ch;
+  }
+}
+
 .answer {
   margin: 0.25em 0;
 }
@@ -221,11 +232,12 @@ body {
 }
 
 .prompt:focus-within .cursor {
-  /* Focused: the reverse-video block of the original, blinking at C64 speed. */
+  /* Focused: the reverse-video block of the original. The KERNAL flips it every
+     20 jiffies (1/60 s each), so one full blink takes 2/3 s. */
   box-shadow: none;
   background: var(--c64-fg);
   color: var(--c64-bg);
-  animation: blink 1.07s steps(1) infinite;
+  animation: blink 0.667s steps(1) infinite;
 }
 
 @keyframes blink {
@@ -298,6 +310,26 @@ body {
 .suggestions .chip {
   color: var(--c64-fg);
   background: var(--c64-bg);
+}
+
+/* A long question would wrap and look like an input field, so on a phone
+   the suggestions are one row that scrolls sideways. */
+@media (max-width: 479px) {
+  .suggestions {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .suggestions .chip {
+    flex: none;
+    white-space: nowrap;
+  }
+
+  /* The row clips anything outside it, so the focus ring goes inside. */
+  .suggestions .chip:focus-visible {
+    outline-offset: -0.15em;
+  }
 }
 
 .skip {

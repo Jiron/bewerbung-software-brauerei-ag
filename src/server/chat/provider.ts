@@ -11,6 +11,8 @@ export interface ProviderRequest {
   messages: ChatTurn[];
   /** The sections the system prompt was built from. The mock answers from these. */
   sections: KnowledgeSection[];
+  /** How many sections the visitor cannot see yet. The prompt mentions them, so does the mock. */
+  lockedSectionCount: number;
   persona: Persona;
   signal: AbortSignal;
 }

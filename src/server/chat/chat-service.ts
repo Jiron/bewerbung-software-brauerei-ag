@@ -86,6 +86,7 @@ export class ChatService {
         system,
         messages,
         sections,
+        lockedSectionCount: lockedSectionCount(snapshot, input.tier),
         persona: snapshot.persona,
         signal: input.signal,
       })) {

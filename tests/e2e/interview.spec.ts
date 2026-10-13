@@ -46,7 +46,8 @@ test.describe("interview", () => {
   test("admits gaps instead of inventing facts", async ({ page }) => {
     await enter(page, "Was ist deine Lieblingspizza?");
     const answer = await outputAfter(page, "Was ist deine Lieblingspizza?");
-    expect(answer).toContain("steht nicht in meiner Wissensbasis");
+    // Example knowledge has locked sections, so the mock also points to CODE.
+    expect(answer).toContain("erfinden gibts bei mir nicht");
     expect(answer).toContain("QUELLEN: keine");
   });
 
@@ -105,11 +106,13 @@ test.describe("commands", () => {
 
   test("unknown programs and BASIC look in character", async ({ page }) => {
     await enter(page, "RUN TETRIS");
-    expect(await outputAfter(page, "RUN TETRIS")).toContain("?FILE NOT FOUND ERROR");
+    expect(await outputAfter(page, "RUN TETRIS")).toContain("?FILE NOT FOUND  ERROR");
     await enter(page, "PRINT X");
-    expect(await outputAfter(page, "PRINT X")).toContain("?SYNTAX ERROR");
+    expect(await outputAfter(page, "PRINT X")).toContain("?SYNTAX  ERROR");
     await enter(page, "Sehr geehrte Damen und Herren");
-    expect(await outputAfter(page, "Sehr geehrte Damen und Herren")).toContain("?PAPIERKORB ERROR");
+    expect(await outputAfter(page, "Sehr geehrte Damen und Herren")).toContain(
+      "?PAPIERKORB  ERROR",
+    );
   });
 
   test("POKE changes colors and SYS 64738 resets", async ({ page }) => {
@@ -144,7 +147,7 @@ test.describe("private tier", () => {
     const secret = page.locator("#secret");
     await secret.fill("falsch");
     await secret.press("Enter");
-    await expect(output.getByText("?SYNTAX ERROR")).toBeVisible();
+    await expect(output.getByText("?SYNTAX  ERROR")).toBeVisible();
     await expect(output.getByText(/Noch \d+ Versuche/)).toBeVisible();
 
     await page.locator("#command").fill("CODE");
