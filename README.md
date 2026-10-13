@@ -21,13 +21,12 @@ Bewerbung von Manassés Zähnler als Fullstack Developer bei der [Software Braue
 
 </div>
 
-<!-- GIF: Boot überspringen, eine Frage stellen, Quelle anklicken, CODE eingeben. Aufnahme folgt. -->
-> **Demo-GIF folgt.** Bis dahin zwei Screenshots aus dem Mock-Modus:
-
 <p align="center">
-  <img src="docs/screenshot-desktop.png" alt="Desktop: Frage, gezapfte Antwort und Quelle auf dem C64-Bildschirm" width="68%">
+  <img src="docs/demo.gif" alt="Demo: Der C64 bootet, beantwortet eine Frage mit zwei Quellen, zeigt eine Quelle im Original, erzählt einen Flachwitz und spielt Airhockey" width="68%">
   <img src="docs/screenshot-mobile.png" alt="Mobile: Bierglas, Antwort mit zwei Quellen" width="24%">
 </p>
+
+<p align="center"><sub>Aufgenommen im Mock-Modus mit der fiktiven Demo-Person Max Muster. Die echten Daten liegen nur auf dem Server.</sub></p>
 
 ## Ausprobieren
 
