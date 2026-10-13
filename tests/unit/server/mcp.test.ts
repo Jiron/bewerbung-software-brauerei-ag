@@ -76,9 +76,9 @@ describe("MCP server", () => {
     expect(JSON.stringify(result.content)).toContain("?DEVICE NOT PRESENT ERROR");
   });
 
-  it("formats manipulation attempts and missing sources", () => {
-    expect(formatAnswer({ text: "Nö.", sources: [], attempt: true, truncated: false })).toBe(
-      "Nö.\n\nBIERWETTE: Versuch erkannt und abgewehrt.\n\nQUELLEN: keine",
+  it("formats truncated answers and missing sources", () => {
+    expect(formatAnswer({ text: "Nö.", sources: [], attempt: true, truncated: true })).toBe(
+      "Nö.\n\n(Antwort gekürzt.)\n\nQUELLEN: keine",
     );
   });
 });

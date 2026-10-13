@@ -18,7 +18,6 @@ describe("parseCommand", () => {
     ["RUN MEMES", { kind: "run", program: "memes" }],
     ["code", { kind: "code" }],
     ["LOGOUT", { kind: "logout" }],
-    ["wette", { kind: "bet" }],
     ["NEW", { kind: "new" }],
     ["clr", { kind: "clear" }],
     ["PRINT CHR$(147)", { kind: "clear" }],

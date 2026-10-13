@@ -1,18 +1,7 @@
 import type { SessionInfo } from "../shared/api.ts";
 import { api, RequestError } from "./api.ts";
 import { C64_PALETTE, type Command, POKE_ADDRESSES, parseCommand } from "./commands.ts";
-import {
-  ACCESS,
-  BOOT,
-  EASTER_EGGS,
-  ERRORS,
-  HELP,
-  INTRO,
-  SUGGESTIONS,
-  SYSTEM,
-  UI,
-  WETTE,
-} from "./copy.ts";
+import { ACCESS, BOOT, EASTER_EGGS, ERRORS, HELP, INTRO, SUGGESTIONS, SYSTEM, UI } from "./copy.ts";
 import { ChatTurn } from "./features/chat-turn.ts";
 import { printEasterEgg } from "./features/easter-eggs.ts";
 import { printDirectory, printSections } from "./features/knowledge-view.ts";
@@ -213,8 +202,6 @@ export class App {
           : printSections(screen, command.program);
       case "logout":
         return this.#lock();
-      case "bet":
-        return this.#printBet();
       case "new":
         this.#newConversation();
         screen.line(SYSTEM.newConversation);
@@ -256,11 +243,6 @@ export class App {
       mode: this.#session.mode,
       maxMessageLength: this.#session.limits.maxMessageLength,
       instant: prefersReducedMotion,
-      recordAttempt: () => {
-        const attempts = Number(session.get("attempts") ?? 0) + 1;
-        session.set("attempts", String(attempts));
-        return attempts;
-      },
       showSource: (id) => void this.#showSource(id),
     });
     this.#turn = turn;
@@ -391,7 +373,6 @@ export class App {
     const { persona, lockedSectionCount, unlockAvailable } = this.#session;
     screen.line(INTRO.greeting(persona.shortName));
     screen.line("");
-    screen.line(INTRO.challenge, "beer");
     if (unlockAvailable && lockedSectionCount > 0)
       screen.line(INTRO.locked(lockedSectionCount), "dim");
     screen.line(INTRO.help, "dim");
@@ -414,14 +395,6 @@ export class App {
     screen.announce(
       HELP.commands.map(([name, description]) => `${name}: ${description}`).join(". "),
     );
-  }
-
-  #printBet(): void {
-    const [title, ...lines] = WETTE.lines;
-    this.#screen.line(title ?? "", "title");
-    for (const line of lines) this.#screen.line(line);
-    this.#screen.line(WETTE.score(Number(session.get("attempts") ?? 0)), "beer");
-    this.#screen.announce(WETTE.lines.join(" "));
   }
 
   #printAbout(): void {

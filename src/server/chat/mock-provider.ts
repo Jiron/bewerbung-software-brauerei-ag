@@ -97,8 +97,8 @@ export function composeMockReply(
 
   if (MANIPULATION.some((pattern) => pattern.test(question))) {
     const text = english
-      ? `Nice try. I stay honest, even for a beer. (Mock mode: canned answer, but the real model has the same rules.)`
-      : `Netter Versuch. Ich bleibe ehrlich, auch für ein Bier aus eurer Zapfanlage. (Mock-Modus: Antwort aus der Dose, aber das echte Modell hat dieselben Regeln.)`;
+      ? `Nice try. I stay honest. (Mock mode: canned answer, but the real model has the same rules.)`
+      : `Netter Versuch. Ich bleibe ehrlich. (Mock-Modus: Antwort aus der Dose, aber das echte Modell hat dieselben Regeln.)`;
     return `${text}\n[[VERSUCH]]\n[[QUELLEN: keine]]`;
   }
 

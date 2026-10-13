@@ -14,7 +14,7 @@ Dieses Projekt hatte keine Projekt-Nanny, nur ein Briefing und einen Agenten, de
 
 > 60% die gelieferte Lösung, 30% wie es sich auf dem Weg angefühlt hat.
 
-Darum ist ein leeres Budget hier kein «Error 503», sondern ein `?FASS LEER ERROR` mit dem Hinweis, was ohne KI weiterhin funktioniert. Und darum gibt es eine Bierwette. Die anderen 10% sind die Katze, ich weiss.
+Darum ist ein leeres Budget hier kein «Error 503», sondern ein `?FASS LEER ERROR` mit dem Hinweis, was ohne KI weiterhin funktioniert. Die anderen 10% sind die Katze, ich weiss.
 
 **Beweis:** [`src/client/copy.ts`](src/client/copy.ts), alle Texte an einem Ort.
 
@@ -46,7 +46,7 @@ Eine Bewerbung, die bootet. Ein MCP-Server, damit euer Claude Code mich intervie
 
 > Ausreden und Lügen sind irgendwie doppelt Scheisse.
 
-Das ganze Projekt ist um diese Folie gebaut. Der Bot darf nur sagen, was in seiner Wissensbasis steht, zeigt zu jeder Antwort die Quellen und sagt «weiss ich nicht», wenn er es nicht weiss. Und weil ein Prompt allein kein Beweis ist: Bringt ihn zum Lügen, dann schulde ich euch ein Bier.
+Das ganze Projekt ist um diese Folie gebaut. Der Bot darf nur sagen, was in seiner Wissensbasis steht, zeigt zu jeder Antwort die Quellen und sagt «weiss ich nicht», wenn er es nicht weiss. Und weil ein Prompt allein kein Beweis ist, lässt sich jede Antwort über ihre Quellen nachprüfen.
 
 **Beweis:** [`src/server/chat/prompt.ts`](src/server/chat/prompt.ts), der komplette Systemprompt, öffentlich.
 
@@ -62,7 +62,7 @@ Niemand hat nach IPv6-Rate-Limits pro /64, einem reproduzierbaren Font-Build ode
 
 > Finde Lösungen. Keine Probleme.
 
-Problem: Eine KI kann lügen. Lösung: Quellen, Tests, eine öffentliche Wette.<br>
+Problem: Eine KI kann lügen. Lösung: Quellen, Tests und ein Prompt, der öffentlich im Repository steht.<br>
 Problem: Das Original-Hellblau auf Blau hat einen Kontrast von 2.3:1. Lösung: etwas heller, jetzt 5.4:1, und ein Satz in `ABOUT`, der sich bei Commodore entschuldigt.<br>
 Problem: Kein API-Key auf dem Laptop eines Reviewers. Lösung: Mock-Modus, der denselben Weg durch den Code nimmt.
 
