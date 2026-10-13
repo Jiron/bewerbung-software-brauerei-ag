@@ -6,6 +6,8 @@ import {
   type ProviderRequest,
   ProviderUnavailableError,
   type StopReason,
+  type SummaryRequest,
+  type SummaryResult,
 } from "../../../src/server/chat/provider.ts";
 import type { KnowledgeIndex, SessionInfo } from "../../../src/shared/api.ts";
 import { findStyleViolations } from "../../../src/shared/house-style.ts";
@@ -26,6 +28,7 @@ class ScriptedProvider implements ChatProvider {
   readonly mode = "live";
   readonly model = "claude-haiku-5-5";
   readonly requests: ProviderRequest[] = [];
+  readonly summaries: SummaryRequest[] = [];
   readonly reply: string;
   readonly options: { stopReason?: StopReason; fail?: Error };
 
@@ -39,6 +42,11 @@ class ScriptedProvider implements ChatProvider {
     if (this.options.fail) throw this.options.fail;
     for (const piece of this.reply.match(/.{1,5}/gs) ?? []) yield { type: "text", text: piece };
     yield { type: "end", usage: NO_USAGE, stopReason: this.options.stopReason ?? "end" };
+  }
+
+  async summarize(request: SummaryRequest): Promise<SummaryResult> {
+    this.summaries.push(request);
+    return { text: "* Besucher fragte nach der Lehre", usage: NO_USAGE };
   }
 }
 
@@ -274,6 +282,55 @@ describe("POST /api/chat", () => {
       "user",
     ]);
     expect(provider.requests[1]?.messages[0]?.content).toBe("Erste Frage");
+  });
+
+  it("compacts long conversations into notes and says so", async () => {
+    const provider = new ScriptedProvider("Antwort. [[QUELLEN: keine]]");
+    const { app } = await createTestApp({
+      provider,
+      conversations: { compactAfterTurns: 4, keepTurns: 2 },
+    });
+    const ask = async (message: string) =>
+      readChatEvents(
+        await app.request("/api/chat", postJson({ conversationId: CONVERSATION, message })),
+      );
+    await ask("Wo war die Lehre?");
+    expect((await ask("Und danach?")).some((event) => event.type === "compacting")).toBe(false);
+
+    const third = await ask("Was noch?");
+    expect(third[0]).toEqual({ type: "compacting" });
+    expect(answerText(third)).toBe("Antwort.");
+    expect(provider.summaries).toHaveLength(1);
+    expect(provider.summaries[0]?.transcript).toContain("BESUCHER: Wo war die Lehre?");
+    expect(provider.summaries[0]?.transcript).not.toContain("Und danach?");
+
+    // The notes ride along in front of the oldest remaining question, as visitor text.
+    const messages = provider.requests[2]?.messages ?? [];
+    expect(messages.map((turn) => turn.role)).toEqual(["user", "assistant", "user"]);
+    expect(messages[0]?.content).toBe(
+      "<frueheres_gespraech>\n* Besucher fragte nach der Lehre\n</frueheres_gespraech>\n\nUnd danach?",
+    );
+  });
+
+  it("answers anyway when compacting fails", async () => {
+    const provider = new ScriptedProvider("Antwort. [[QUELLEN: keine]]");
+    provider.summarize = async () => {
+      throw new ProviderUnavailableError("down");
+    };
+    const { app } = await createTestApp({
+      provider,
+      conversations: { compactAfterTurns: 2, keepTurns: 2 },
+    });
+    for (const message of ["Eins", "Zwei"]) {
+      await readChatEvents(
+        await app.request("/api/chat", postJson({ conversationId: CONVERSATION, message })),
+      );
+    }
+    const events = await readChatEvents(
+      await app.request("/api/chat", postJson({ conversationId: CONVERSATION, message: "Drei" })),
+    );
+    expect(answerText(events)).toBe("Antwort.");
+    expect(provider.requests[2]?.messages[0]?.content).toBe("Eins");
   });
 
   it("defuses marker syntax in questions", async () => {

@@ -36,10 +36,10 @@ describe("loadConfig", () => {
 });
 
 describe("ConversationStore", () => {
-  it("keeps whole question and answer pairs within the limit", () => {
+  it("keeps whole question and answer pairs within the hard limit", () => {
     const store = new ConversationStore({ maxTurns: 4 });
     for (let i = 1; i <= 3; i++) store.append("c", `Frage ${i}`, `Antwort ${i}`);
-    expect(store.history("c", "Frage 4").map((turn) => turn.content)).toEqual([
+    expect(store.history("c", "Frage 4").turns.map((turn) => turn.content)).toEqual([
       "Frage 2",
       "Antwort 2",
       "Frage 3",
@@ -54,9 +54,48 @@ describe("ConversationStore", () => {
     store.append("a", "q", "a");
     store.append("b", "q", "a");
     store.append("c", "q", "a");
-    expect(store.history("a", "x")).toHaveLength(1);
-    expect(store.history("c", "x")).toHaveLength(3);
+    expect(store.history("a", "x").turns).toHaveLength(1);
+    expect(store.history("c", "x").turns).toHaveLength(3);
     now = 5_000;
-    expect(store.history("c", "x")).toHaveLength(1);
+    expect(store.history("c", "x").turns).toHaveLength(1);
+  });
+
+  it("asks for compaction once a conversation gets long, keeping the newest turns", () => {
+    const store = new ConversationStore({ compactAfterTurns: 6, keepTurns: 2 });
+    store.append("c", "Frage 1", "Antwort 1");
+    store.append("c", "Frage 2", "Antwort 2");
+    expect(store.compactionDue("c")).toBeNull();
+    store.append("c", "Frage 3", "Antwort 3");
+    const due = store.compactionDue("c");
+    expect(due?.turns.map((turn) => turn.content)).toEqual([
+      "Frage 1",
+      "Antwort 1",
+      "Frage 2",
+      "Antwort 2",
+    ]);
+
+    store.compact("c", due?.turns ?? [], "* Notizen");
+    expect(store.compactionDue("c")).toBeNull();
+    const history = store.history("c", "Frage 4");
+    expect(history.summary).toBe("* Notizen");
+    expect(history.turns.map((turn) => turn.content)).toEqual(["Frage 3", "Antwort 3", "Frage 4"]);
+  });
+
+  it("also compacts long answers before the turn count is reached", () => {
+    const store = new ConversationStore({ compactAfterChars: 100, keepTurns: 2 });
+    store.append("c", "Frage 1", "x".repeat(80));
+    store.append("c", "Frage 2", "y".repeat(80));
+    expect(store.compactionDue("c")?.turns).toHaveLength(2);
+  });
+
+  it("drops a summary that no longer matches the history", () => {
+    const store = new ConversationStore({ compactAfterTurns: 4, keepTurns: 2, maxTurns: 4 });
+    store.append("c", "Frage 1", "Antwort 1");
+    store.append("c", "Frage 2", "Antwort 2");
+    const due = store.compactionDue("c");
+    // A second tab asked in the meantime, and the hard limit pushed the oldest pair out.
+    store.append("c", "Frage 3", "Antwort 3");
+    store.compact("c", due?.turns ?? [], "* veraltet");
+    expect(store.history("c", "x").summary).toBeNull();
   });
 });

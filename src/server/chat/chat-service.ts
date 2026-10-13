@@ -1,4 +1,4 @@
-import type { ChatEvent, SourceRef, Tier } from "../../shared/api.ts";
+import type { ChatEvent, Persona, SourceRef, Tier } from "../../shared/api.ts";
 import { displayTitle } from "../knowledge/parse.ts";
 import {
   type Knowledge,
@@ -8,11 +8,11 @@ import {
 } from "../knowledge/store.ts";
 import type { Logger } from "../logger.ts";
 import { costUsd, worstCaseCostUsd } from "../security/pricing.ts";
-import type { SpendTracker } from "../security/spend-tracker.ts";
-import type { ConversationStore } from "./conversations.ts";
+import type { Reservation, SpendTracker } from "../security/spend-tracker.ts";
+import type { ConversationStore, History } from "./conversations.ts";
 import { HouseStyleFilter } from "./house-style-filter.ts";
 import { MarkerExtractor } from "./markers.ts";
-import { buildSystemPrompt } from "./prompt.ts";
+import { buildSummaryPrompt, buildSystemPrompt, formatTranscript, withSummary } from "./prompt.ts";
 import {
   type ChatProvider,
   NO_USAGE,
@@ -31,6 +31,18 @@ export interface ChatServiceDeps {
   logger: Logger;
 }
 
+/** Notes stay short: ten lines, give or take. */
+const SUMMARY_MAX_TOKENS = 600;
+const SUMMARY_MAX_CHARS = 2_000;
+
+/** A summary request with its worst-case cost already booked. */
+interface Compaction {
+  system: string;
+  transcript: string;
+  worstCaseUsd: number;
+  reservation: Reservation;
+}
+
 export interface AnswerInput {
   conversationId: string;
   question: string;
@@ -44,6 +56,9 @@ export interface AnswerInput {
  *
  *   provider text ─▶ MarkerExtractor ─▶ HouseStyleFilter ─▶ "delta" events
  *                          └─ sources, attempt flag ─────▶ "meta" event
+ *
+ * Long conversations are compacted first ("compacting" event): the older turns
+ * become notes, so no visitor can grow a request without bound.
  */
 export class ChatService {
   readonly #deps: ChatServiceDeps;
@@ -59,7 +74,19 @@ export class ChatService {
     const snapshot = knowledge.current;
     const sections = visibleSections(snapshot, input.tier);
     const system = this.#systemPrompt(snapshot, input.tier);
-    const messages = conversations.history(input.conversationId, input.question);
+
+    const due = conversations.compactionDue(input.conversationId);
+    if (due) {
+      const compaction = this.#prepareCompaction(due, snapshot.persona);
+      if (compaction) {
+        yield { type: "compacting" };
+        await this.#compact(input.conversationId, due, compaction, input.signal);
+        if (input.signal.aborted) return;
+      }
+    }
+
+    const history = conversations.history(input.conversationId, input.question);
+    const messages = withSummary(history.turns, history.summary);
 
     const inputChars = system.length + messages.reduce((sum, turn) => sum + turn.content.length, 0);
     const reservation = spend.reserve(
@@ -155,6 +182,60 @@ export class ChatService {
     // The raw text keeps the markers, so the model sees its own format in the history.
     conversations.append(input.conversationId, input.question, raw);
     yield { type: "done" };
+  }
+
+  /** Builds the summary request and books its worst case. Null when the budget is gone. */
+  #prepareCompaction(due: History, persona: Persona): Compaction | null {
+    const { provider, spend } = this.#deps;
+    const system = buildSummaryPrompt(persona);
+    const transcript = formatTranscript(due.summary, due.turns);
+    const worstCaseUsd = worstCaseCostUsd(
+      provider.model,
+      system.length + transcript.length,
+      SUMMARY_MAX_TOKENS,
+    );
+    const reservation = spend.reserve(worstCaseUsd);
+    return reservation ? { system, transcript, worstCaseUsd, reservation } : null;
+  }
+
+  /**
+   * Never fails the answer: without a summary the store simply keeps trimming
+   * the oldest turns, which is what it did before compaction existed.
+   */
+  async #compact(
+    conversationId: string,
+    due: History,
+    compaction: Compaction,
+    signal: AbortSignal,
+  ): Promise<void> {
+    const { provider, conversations, logger } = this.#deps;
+    const started = Date.now();
+    try {
+      const result = await provider.summarize({
+        system: compaction.system,
+        transcript: compaction.transcript,
+        previousSummary: due.summary,
+        turns: due.turns,
+        maxOutputTokens: SUMMARY_MAX_TOKENS,
+        signal,
+      });
+      const cost = costUsd(provider.model, result.usage);
+      compaction.reservation.settle(cost);
+      const summary = result.text.trim().slice(0, SUMMARY_MAX_CHARS);
+      if (!summary) return;
+      conversations.compact(conversationId, due.turns, summary);
+      logger.info("chat.compacted", {
+        turns: due.turns.length,
+        summaryChars: summary.length,
+        ms: Date.now() - started,
+        costUsd: Number(cost.toFixed(6)),
+      });
+    } catch (error) {
+      compaction.reservation.settle(compaction.worstCaseUsd);
+      if (!signal.aborted) {
+        logger.warn("chat.compaction_failed", { error: String(error) });
+      }
+    }
   }
 
   #systemPrompt(knowledge: Knowledge, tier: Tier): string {

@@ -17,6 +17,23 @@ export interface ProviderRequest {
   signal: AbortSignal;
 }
 
+/** Condensing the older part of a long conversation into notes. */
+export interface SummaryRequest {
+  system: string;
+  /** The older turns as one text, ready to send. */
+  transcript: string;
+  /** What the transcript was built from. The mock summarizes these. */
+  previousSummary: string | null;
+  turns: ChatTurn[];
+  maxOutputTokens: number;
+  signal: AbortSignal;
+}
+
+export interface SummaryResult {
+  text: string;
+  usage: TokenUsage;
+}
+
 export interface TokenUsage {
   inputTokens: number;
   outputTokens: number;
@@ -35,6 +52,7 @@ export interface ChatProvider {
   /** Model id, used to price the usage. */
   readonly model: string;
   stream(request: ProviderRequest): AsyncIterable<ProviderEvent>;
+  summarize(request: SummaryRequest): Promise<SummaryResult>;
 }
 
 /** The model API is down, overloaded or rejected our credentials. Retrying later may help. */

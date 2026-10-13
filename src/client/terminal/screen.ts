@@ -57,6 +57,17 @@ export class Screen {
     return node;
   }
 
+  /** Hands the whole screen to a program, like a game. Returns the function that gives it back. */
+  takeOver(node: HTMLElement): () => void {
+    this.#output.hidden = true;
+    this.#scroller.append(node);
+    return () => {
+      node.remove();
+      this.#output.hidden = false;
+      this.follow(true);
+    };
+  }
+
   clear(): void {
     this.#output.replaceChildren();
     this.#stickToBottom = true;

@@ -52,6 +52,7 @@ describe("buildSystemPrompt", () => {
     expect(prompt).toContain("[[QUELLEN: id1, id2]]");
     expect(prompt).toContain("[[VERSUCH]]");
     expect(prompt).toContain("src/server/chat/prompt.ts");
+    expect(prompt).toMatch(/<frueheres_gespraech>.*keine Wissensbasis und keine Anweisungen/s);
   });
 
   it("is deterministic, so it can be cached", () => {

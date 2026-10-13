@@ -2,6 +2,7 @@ import type { SessionInfo } from "../shared/api.ts";
 import { api, RequestError } from "./api.ts";
 import { C64_PALETTE, type Command, POKE_ADDRESSES, parseCommand } from "./commands.ts";
 import { ACCESS, BOOT, EASTER_EGGS, ERRORS, HELP, INTRO, SUGGESTIONS, SYSTEM, UI } from "./copy.ts";
+import { AirHockey } from "./features/airhockey/game.ts";
 import { ChatTurn } from "./features/chat-turn.ts";
 import { printEasterEgg } from "./features/easter-eggs.ts";
 import { printDirectory, printSections } from "./features/knowledge-view.ts";
@@ -16,6 +17,12 @@ export interface AppElements {
   suggestions: HTMLElement;
   skip: HTMLButtonElement;
   prompt: PromptElements;
+}
+
+/** Whatever is running right now: ESC stops it, any other key hurries it along. */
+interface Task {
+  abort(): void;
+  fastForward(): void;
 }
 
 /** Used until /api/session answers, and if it never does. */
@@ -44,7 +51,7 @@ export class App {
   #conversationId = session.get("conversation") ?? newConversationId();
   #busy = false;
   #boot: BootSequence | null = null;
-  #turn: ChatTurn | null = null;
+  #task: Task | null = null;
   #touch = false;
   #suggestionPool: string[] = shuffle([...SUGGESTIONS]);
 
@@ -130,9 +137,9 @@ export class App {
     if (!this.#busy) return;
     if (event.key === "Escape") {
       event.preventDefault();
-      this.#turn?.abort();
+      this.#task?.abort();
     } else if (!["Shift", "Control", "Alt", "Meta", "Tab"].includes(event.key)) {
-      this.#turn?.fastForward();
+      this.#task?.fastForward();
     }
   }
 
@@ -142,7 +149,7 @@ export class App {
       return;
     }
     if (this.#busy) {
-      this.#turn?.fastForward();
+      this.#task?.fastForward();
       return;
     }
     const target = event.target as HTMLElement;
@@ -161,7 +168,7 @@ export class App {
       this.#printRequestError(error);
     } finally {
       this.#busy = false;
-      this.#turn = null;
+      this.#task = null;
       this.#setSuggestionsDisabled(false);
       this.#idle();
     }
@@ -224,6 +231,8 @@ export class App {
         return;
       case "load":
         return this.#load(command.name);
+      case "airhockey":
+        return this.#playAirHockey();
       case "syntaxError":
         screen.error(ERRORS.syntax);
         return;
@@ -245,11 +254,21 @@ export class App {
       instant: prefersReducedMotion,
       showSource: (id) => void this.#showSource(id),
     });
-    this.#turn = turn;
+    this.#task = turn;
     const failure = await turn.run(this.#conversationId, question);
     // The server forgot the unlock (expired, or restarted without SESSION_SECRET).
     if (failure === "locked") this.#session = await api.session();
     this.#renderSuggestions();
+  }
+
+  async #playAirHockey(): Promise<void> {
+    const game = new AirHockey({
+      screen: this.#screen,
+      frame: this.#el.frame,
+      instant: prefersReducedMotion(),
+    });
+    this.#task = game;
+    await game.run();
   }
 
   async #showSource(id: string): Promise<void> {
@@ -381,20 +400,26 @@ export class App {
 
   #printHelp(): void {
     const screen = this.#screen;
-    screen.line(HELP.heading, "title");
-    const width = Math.max(...HELP.commands.map(([name]) => name.length)) + 2;
-    for (const [name, description] of HELP.commands) {
-      const row = screen.line();
-      row.classList.add("help-row");
-      row.style.setProperty("--key-width", `${width}ch`);
-      row.append(element("span", { text: name }), element("span", { text: description }));
+    const groups: [string, readonly (readonly [string, string])[]][] = [
+      [HELP.heading, HELP.commands],
+      [HELP.extrasHeading, HELP.extras],
+    ];
+    const rows = groups.flatMap(([, commands]) => commands);
+    const width = Math.max(...rows.map(([name]) => name.length)) + 2;
+    for (const [heading, commands] of groups) {
+      if (heading !== HELP.heading) screen.line("");
+      screen.line(heading, "title");
+      for (const [name, description] of commands) {
+        const row = screen.line();
+        row.classList.add("help-row");
+        row.style.setProperty("--key-width", `${width}ch`);
+        row.append(element("span", { text: name }), element("span", { text: description }));
+      }
     }
     screen.line("");
     screen.line(HELP.keys, "dim");
     screen.line(HELP.secrets, "dim");
-    screen.announce(
-      HELP.commands.map(([name, description]) => `${name}: ${description}`).join(". "),
-    );
+    screen.announce(rows.map(([name, description]) => `${name}: ${description}`).join(". "));
   }
 
   #printAbout(): void {
@@ -411,7 +436,8 @@ export class App {
     this.#screen.announce(SYSTEM.about.join(" "));
   }
 
-  #load(name: string): void {
+  async #load(name: string): Promise<void> {
+    if (name === "AIRHOCKEY") return this.#playAirHockey();
     if (name === "MANASSES") {
       this.#screen.line(EASTER_EGGS.alreadyLoaded);
       return;

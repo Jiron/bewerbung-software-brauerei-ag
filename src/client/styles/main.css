@@ -116,6 +116,10 @@ body {
   display: block;
 }
 
+.output[hidden] {
+  display: none;
+}
+
 .line {
   margin: 0;
   min-height: calc(var(--line-height) * 1em);
@@ -344,6 +348,60 @@ body {
   display: none;
 }
 
+/* ── AIRHOCKEY: the game takes over the screen ────────────────────────────── */
+
+.game {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25em;
+  padding: 0.5em 1ch;
+}
+
+.game__bar {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 0.25em 1ch;
+}
+
+.game__score {
+  color: var(--c64-white);
+}
+
+.game__stage {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+}
+
+/* Drawn at C64 resolution and scaled up: hard pixel edges, no smoothing. */
+.game__table {
+  display: block;
+  image-rendering: pixelated;
+  touch-action: none;
+  cursor: none;
+}
+
+/* A goal flashes the border, the way C64 games did it. */
+.frame.is-goal {
+  animation: goal-flash 0.6s steps(1);
+}
+
+@keyframes goal-flash {
+  0%,
+  50% {
+    background: var(--flash);
+  }
+  25%,
+  75% {
+    background: var(--c64-border);
+  }
+}
+
 /* ── CRT: scanlines, vignette, flicker ────────────────────────────────────── */
 
 body::after {
@@ -414,6 +472,7 @@ body::after {
 
 @media (prefers-reduced-motion: reduce) {
   body::after,
+  .frame.is-goal,
   .frame.is-loading,
   .frame.is-powering-on .screen,
   .prompt:focus-within .cursor {

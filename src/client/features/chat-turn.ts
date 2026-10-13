@@ -56,7 +56,7 @@ export class ChatTurn {
     const answer = screen.block("answer");
     answer.setAttribute("aria-busy", "true");
     const writer = new Typewriter(answer.appendChild(document.createTextNode("")), {
-      charsPerSecond: 60,
+      wordsPerSecond: 7,
       instant: () => this.#fastForward || this.#deps.instant(),
       onWrite: () => screen.follow(),
     });
@@ -76,6 +76,8 @@ export class ChatTurn {
           if (event.type === "delta") {
             stopTapping();
             writer.push(event.text);
+          } else if (event.type === "compacting") {
+            status.before(element("p", { className: "line tone-dim", text: CHAT.compacting }));
           } else if (event.type === "meta") {
             outcome.meta = event;
           } else if (event.type === "error") {

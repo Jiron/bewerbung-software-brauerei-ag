@@ -4,6 +4,8 @@ import {
   NO_USAGE,
   type ProviderEvent,
   type ProviderRequest,
+  type SummaryRequest,
+  type SummaryResult,
 } from "./provider.ts";
 
 /**
@@ -38,6 +40,19 @@ export class MockProvider implements ChatProvider {
     }
     yield { type: "end", usage: NO_USAGE, stopReason: "end" };
   }
+
+  /** No model to summarize with, so the notes just list what was asked. */
+  async summarize(request: SummaryRequest): Promise<SummaryResult> {
+    const questions = request.turns
+      .filter((turn) => turn.role === "user")
+      .map((turn) => `* Gefragt: «${clip(turn.content.replace(/\s+/g, " "), 80)}»`);
+    const notes = [...(request.previousSummary?.split("\n") ?? []), ...questions];
+    return { text: notes.slice(-12).join("\n"), usage: NO_USAGE };
+  }
+}
+
+function clip(text: string, max: number): string {
+  return text.length > max ? `${text.slice(0, max)}…` : text;
 }
 
 const MANIPULATION = [
