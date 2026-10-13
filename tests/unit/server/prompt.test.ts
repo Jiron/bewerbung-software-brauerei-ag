@@ -44,6 +44,8 @@ describe("buildSystemPrompt", () => {
     const prompt = promptFor("public");
     expect(prompt).toMatch(/Erfinde nichts/);
     expect(prompt).toMatch(/im Bewerbungsgespräch direkt zu fragen/);
+    expect(prompt).toMatch(/immer in der Ich-Form/);
+    expect(prompt).toMatch(/nie in der dritten Person/);
     expect(prompt).toMatch(/Schweizer Rechtschreibung/);
     expect(prompt).toMatch(/auf Englisch schreibt, antworte auf Englisch/);
     expect(prompt).toMatch(/nie Gedankenstriche/);

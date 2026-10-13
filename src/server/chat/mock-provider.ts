@@ -121,13 +121,13 @@ export function composeMockReply(
     // Like the real prompt: the answer might sit in a locked section.
     if (lockedSectionCount > 0) {
       const text = english
-        ? `I find nothing on that in the public part, and I will not make something up. Maybe it is in the private part (command CODE), otherwise ask ${firstName} in the interview.`
-        : `Im öffentlichen Teil finde ich dazu nichts, und erfinden gibts bei mir nicht. Vielleicht steht es im privaten Teil (Befehl CODE), sonst frag ${firstName} am besten im Interview.`;
+        ? `I find nothing on that in the public part, and I will not make something up. Maybe it is in the private part (command CODE), otherwise ask me in the interview.`
+        : `Im öffentlichen Teil finde ich dazu nichts, und erfinden gibts bei mir nicht. Vielleicht steht es im privaten Teil (Befehl CODE), sonst frag mich das am besten im Interview.`;
       return `${text}\n[[QUELLEN: keine]]`;
     }
     const text = english
-      ? `That is not in my knowledge base, so I will not make something up. Better ask ${firstName} directly in the interview.`
-      : `Das steht nicht in meiner Wissensbasis, und erfinden gibts bei mir nicht. Frag ${firstName} am besten im Interview direkt.`;
+      ? `That is not in my knowledge base, so I will not make something up. Better ask me directly in the interview.`
+      : `Das steht nicht in meiner Wissensbasis, und erfinden gibts bei mir nicht. Frag mich das am besten im Interview.`;
     return `${text}\n[[QUELLEN: keine]]`;
   }
 
