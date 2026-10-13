@@ -70,4 +70,6 @@ Problem: Kein API-Key auf dem Laptop eines Reviewers. Lösung: Mock-Modus, der d
 
 > Besser einen guten Freund verloren, als einen schlechten Witz nicht zu machen.
 
-`POKE 53280,0`. Und dann `SYS 64738`.
+Tippt `FLACHWITZ`: über 50 bekannte schlechte Witze, jedes Mal ein anderer. Lieber einen Freund verlieren, ihr wisst schon.
+
+**Beweis:** [`src/client/jokes.ts`](src/client/jokes.ts)

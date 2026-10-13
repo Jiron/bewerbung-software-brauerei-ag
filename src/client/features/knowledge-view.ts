@@ -37,10 +37,14 @@ export async function printDirectory(screen: Screen): Promise<void> {
  * knowledge files, without any AI in between. This is how visitors verify
  * what the bot told them.
  */
-export async function printSections(screen: Screen, target: string): Promise<void> {
+export async function printSections(
+  screen: Screen,
+  target: string,
+  options: { exact?: boolean } = {},
+): Promise<void> {
   const index = await api.knowledge();
   const slug = PROGRAMS[target] ?? target;
-  const matches = findSections(index.sections, slug);
+  const matches = findSections(index.sections, slug, options);
   if (matches.length === 0) {
     screen.error(ERRORS.notFound, LISTING.programNotFound(target.toUpperCase()));
     return;
@@ -59,11 +63,19 @@ function printSection(screen: Screen, section: SectionDetail): void {
   screen.line(section.content);
 }
 
-/** An exact id wins; otherwise a file slug selects all of its sections. */
-export function findSections(sections: SectionSummary[], target: string): SectionSummary[] {
-  const exact = sections.filter((section) => section.id === target);
-  if (exact.length > 0) return exact;
-  return sections.filter((section) => section.id === target || section.id.startsWith(`${target}/`));
+/**
+ * A file slug selects the whole file: its intro, whose id is the slug itself,
+ * and every section in it. A section id ("werdegang/lehre") selects just that
+ * section. `exact` (for source buttons) only ever returns the one section cited.
+ */
+export function findSections(
+  sections: SectionSummary[],
+  target: string,
+  options: { exact?: boolean } = {},
+): SectionSummary[] {
+  return sections.filter(
+    (section) => section.id === target || (!options.exact && section.id.startsWith(`${target}/`)),
+  );
 }
 
 /** A C64 disk block holds 254 bytes of data. */

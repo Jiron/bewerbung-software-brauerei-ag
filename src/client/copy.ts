@@ -1,6 +1,7 @@
 /**
- * Every user-facing string of the UI lives here, so the house-style test can
- * check all of it: Swiss spelling, and no dashes used as punctuation.
+ * Every user-facing string of the UI lives here (the jokes in jokes.ts), so the
+ * house-style test can check all of it: Swiss spelling, and no dashes used as
+ * punctuation.
  * C64 messages are uppercase like on the original; everything a human should
  * actually read is in normal case, because 40 columns of shouting is tiring.
  */
@@ -50,6 +51,7 @@ export const HELP = {
   extrasHeading: "ZUM SPASS",
   extras: [
     ["AIRHOCKEY", "eine Runde gegen den C64"],
+    ["FLACHWITZ", "ein schlechter Witz, jedes Mal ein anderer"],
     ["BIER", "eins aufs Haus"],
     ["POKE 53280,0", "Rahmenfarbe, 0 bis 15"],
     ['LOAD "$",8', "die Diskette als Verzeichnis"],

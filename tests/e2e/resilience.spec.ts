@@ -121,7 +121,14 @@ test("no accessibility violations on the intro and after an answer", async ({ pa
 
 test("everything on screen follows the house style", async ({ page }) => {
   await boot(page);
-  for (const command of ["HELP", "AMIGA", "ABOUT", "Welche Projekte hast du?", "BIER"]) {
+  for (const command of [
+    "HELP",
+    "AMIGA",
+    "ABOUT",
+    "Welche Projekte hast du?",
+    "BIER",
+    "FLACHWITZ",
+  ]) {
     await enter(page, command);
   }
   const text = await page.locator("body").innerText();

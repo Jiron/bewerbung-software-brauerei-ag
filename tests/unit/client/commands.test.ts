@@ -33,6 +33,8 @@ describe("parseCommand", () => {
     ["SYS 49152", { kind: "syntaxError" }],
     ["PRINT X", { kind: "syntaxError" }],
     ["airhockey", { kind: "airhockey" }],
+    ["Flachwitz", { kind: "joke" }],
+    ["dadjoke", { kind: "joke" }],
     ["RUN AIRHOCKEY", { kind: "airhockey" }],
     ['LOAD "AIRHOCKEY",8,1', { kind: "load", name: "AIRHOCKEY" }],
     ["AMIGA", { kind: "easterEgg", egg: "amiga" }],

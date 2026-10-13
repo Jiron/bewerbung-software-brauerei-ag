@@ -5,7 +5,9 @@ import { ACCESS, BOOT, EASTER_EGGS, ERRORS, HELP, INTRO, SUGGESTIONS, SYSTEM, UI
 import { AirHockey } from "./features/airhockey/game.ts";
 import { ChatTurn } from "./features/chat-turn.ts";
 import { printEasterEgg } from "./features/easter-eggs.ts";
+import { JokeDeck, JokeTeller } from "./features/flachwitz.ts";
 import { printDirectory, printSections } from "./features/knowledge-view.ts";
+import { FLACHWITZE } from "./jokes.ts";
 import { element, newConversationId, prefersReducedMotion, session } from "./lib/browser.ts";
 import { BootSequence } from "./terminal/boot.ts";
 import { Prompt, type PromptElements, type PromptMode } from "./terminal/prompt.ts";
@@ -54,6 +56,7 @@ export class App {
   #task: Task | null = null;
   #touch = false;
   #suggestionPool: string[] = shuffle([...SUGGESTIONS]);
+  readonly #jokes = new JokeDeck(FLACHWITZE);
 
   constructor(screen: Screen, elements: AppElements) {
     this.#screen = screen;
@@ -233,6 +236,8 @@ export class App {
         return this.#load(command.name);
       case "airhockey":
         return this.#playAirHockey();
+      case "joke":
+        return this.#tellJoke();
       case "syntaxError":
         screen.error(ERRORS.syntax);
         return;
@@ -271,10 +276,16 @@ export class App {
     await game.run();
   }
 
+  async #tellJoke(): Promise<void> {
+    const teller = new JokeTeller(this.#screen, { instant: prefersReducedMotion() });
+    this.#task = teller;
+    await teller.tell(this.#jokes.draw());
+  }
+
   async #showSource(id: string): Promise<void> {
     if (this.#busy) return;
     this.#screen.line(`LIST ${id.toUpperCase()}`, "input");
-    await this.#work(() => printSections(this.#screen, id));
+    await this.#work(() => printSections(this.#screen, id, { exact: true }));
   }
 
   #newConversation(): void {

@@ -7,6 +7,8 @@ VORLAGE: Deine ehrliche Antwort auf jedes Meme im Meme Glossary der Software Bra
 Nicht nur «stimmt», sondern ein konkretes Beispiel, das zeigt, dass es stimmt.
 -->
 
+Meine Antworten auf euer Meme Glossary, zu jedem ein Beispiel.
+
 ## Freedom, Responsibility, Performance
 
 Ich arbeite gern selbständig. Wenn ich sage, dass etwas bis Donnerstag fertig ist, ist es bis Donnerstag fertig, oder ich melde mich am Montag.

@@ -7,6 +7,7 @@ import { readdir, readFile } from "node:fs/promises";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
 import * as copy from "../../../src/client/copy.ts";
+import { FLACHWITZE } from "../../../src/client/jokes.ts";
 import { composeMockReply } from "../../../src/server/chat/mock-provider.ts";
 import { loadKnowledge } from "../../../src/server/knowledge/store.ts";
 import { findStyleViolations } from "../../../src/shared/house-style.ts";
@@ -67,6 +68,10 @@ describe("findStyleViolations", () => {
 describe("house style of everything we wrote", () => {
   it("UI copy", () => {
     for (const text of collectStrings(copy)) expectHouseStyle("copy.ts", text);
+  });
+
+  it("jokes", () => {
+    for (const text of collectStrings(FLACHWITZE)) expectHouseStyle("jokes.ts", text);
   });
 
   it("HTML pages", async () => {
