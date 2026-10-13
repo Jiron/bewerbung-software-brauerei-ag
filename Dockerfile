@@ -10,8 +10,11 @@ RUN npm run build
 
 # ── Runtime: Node runs the TypeScript server directly, no compile step ──────
 FROM node:24-alpine AS runtime
+# DATA_DIR keeps the daily spend counter. Mount a volume there, or every
+# redeploy refills the keg.
 ENV NODE_ENV=production \
-    PORT=3000
+    PORT=3000 \
+    DATA_DIR=/data
 WORKDIR /app
 
 COPY package.json package-lock.json ./

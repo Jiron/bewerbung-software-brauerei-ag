@@ -131,7 +131,7 @@ Alles optional, Details und Standardwerte in [`.env.example`](.env.example).
 | `DAILY_SPEND_CAP_USD` | Hartes Tagesbudget, Reset um Mitternacht Schweizer Zeit. Standard: 1 USD. |
 | `RATE_LIMIT_PER_MINUTE`, `RATE_LIMIT_PER_DAY` | Pro IP. Standard: 6 und 120. |
 | `MAX_MESSAGE_LENGTH` | Standard: 500 Zeichen. |
-| `DATA_DIR` | Speichert den Budgetzähler über Neustarts hinweg. |
+| `DATA_DIR` | Speichert den Budgetzähler über Neustarts hinweg. Im Docker-Image: `/data`. |
 | `TRUST_PROXY` | `true` nur hinter genau einem Reverse Proxy. |
 | `PUBLIC_REPO_URL` | Link für `ABOUT` und für Fragen nach dem Systemprompt. |
 
@@ -157,13 +157,43 @@ Die Tests decken unter anderem ab: Marken über jede mögliche Chunk-Grenze, Hau
 
 ## Deployment
 
+Es gibt nur ein Dockerfile und keine plattformspezifischen Dateien. Was ein Dockerfile bauen kann, betreibt die App gleich: ein Server mit Docker Compose, Coolify, Dokku, Railway.
+
+### Docker Compose
+
 ```bash
 cp .env.example .env              # Schlüssel, Hash und Secret eintragen
 mkdir knowledge                   # Wissensbasis ablegen (siehe oben)
 docker compose up -d --build
 ```
 
-Der Container läuft als unprivilegierter Benutzer mit schreibgeschütztem Dateisystem. Die Wissensbasis ist read-only gemountet, der Budgetzähler liegt im Volume `load-manasses-data`. Für HTTPS einen Reverse Proxy (Caddy, Traefik) davor setzen und `TRUST_PROXY=true` eintragen.
+Der Container läuft als unprivilegierter Benutzer mit schreibgeschütztem Dateisystem. Die Wissensbasis ist read-only gemountet, der Budgetzähler liegt im Volume `load-manasses-data`. Der Port ist nur auf `127.0.0.1` offen. HTTPS übernimmt ein Reverse Proxy davor (Caddy, nginx), dazu `TRUST_PROXY=true` eintragen.
+
+### Plattformen wie Coolify
+
+Als Anwendung aus diesem Repository anlegen und das Dockerfile bauen lassen. Die Plattform kümmert sich um Domain und HTTPS.
+
+| Einstellung | Wert |
+| --- | --- |
+| Build | `Dockerfile` im Repository |
+| Port | `3000` |
+| Health Check | `GET /api/health` |
+| Volume | nach `/data`, für den Budgetzähler |
+| Verzeichnis, read-only | Wissensbasis auf dem Server nach `/knowledge` |
+
+Umgebungsvariablen:
+
+```bash
+ANTHROPIC_API_KEY=sk-ant-...
+ACCESS_CODE_HASH=scrypt:...
+SESSION_SECRET=...                # openssl rand -base64 48
+KNOWLEDGE_DIR=/knowledge
+TRUST_PROXY=true                  # sonst teilen sich alle Besucher ein Rate Limit
+PUBLIC_REPO_URL=https://github.com/...
+DAILY_SPEND_CAP_USD=1.00
+```
+
+Die Secrets braucht nur der laufende Container, nicht der Build. Unterscheidet die Plattform zwischen Build- und Laufzeitvariablen, gehören sie nur zur Laufzeit. Die Wissensbasis lässt sich danach per SSH im Verzeichnis ändern, die App lädt sie ohne Neustart neu.
 
 ## Projektstruktur
 
