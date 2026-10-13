@@ -27,6 +27,10 @@ export const INTRO = {
   mock: "MOCK-MODUS: Kein API-Key, Antworten aus der Dose statt frisch gezapft.",
   locked: (count: number) =>
     `${count} Abschnitte sind gesperrt. Der Code steht in der Bewerbungs-E-Mail (CODE).`,
+  /** REQUIRE_ACCESS_CODE: shown instead of the greeting until the code is in. */
+  gate: (name: string) =>
+    `Bevor du die KI-Version von ${name} ausfragen kannst, brauche ich den Zugangscode aus der Bewerbungs-E-Mail.`,
+  gateHint: "ESC bricht ab. HELP, WETTE und ABOUT gehen auch ohne Code.",
 };
 
 export const HELP = {
@@ -38,7 +42,7 @@ export const HELP = {
     ["RUN CV", "der Lebenslauf, ganz ohne KI"],
     ["RUN PROJEKTE", "Side Projects"],
     ["RUN MEMES", "meine Antworten aufs Meme Glossary"],
-    ["CODE", "private Details freischalten"],
+    ["CODE", "Zugangscode eingeben"],
     ["WETTE", "die Bierwette"],
     ["NEW", "Gespräch vergessen"],
     ["CLR", "Bildschirm löschen"],
@@ -135,6 +139,11 @@ export const ACCESS = {
   },
   alreadyUnlocked: "Schon freigeschaltet. LOGOUT sperrt wieder.",
   loggedOut: "Private Abschnitte wieder gesperrt.",
+  loggedOutAll: "Wieder gesperrt. Ohne Code bleibt die KI stumm.",
+  required: {
+    code: "?ACCESS DENIED  ERROR",
+    text: "Ohne Zugangscode bleibt die KI stumm. Der Code steht in der Bewerbungs-E-Mail: tipp CODE.",
+  },
 };
 
 export const LISTING = {

@@ -29,6 +29,7 @@ describe("loadConfig", () => {
     [{ ACCESS_CODE_HASH: "plaintext-code" }],
     [{ ANTHROPIC_EFFORT: "max" }],
     [{ TRUST_PROXY: "vielleicht" }],
+    [{ REQUIRE_ACCESS_CODE: "true" }],
   ])("rejects invalid values %j", (env) => {
     expect(() => loadConfig(env, root)).toThrow(ConfigError);
   });

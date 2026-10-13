@@ -366,3 +366,33 @@ describe("POST /api/chat", () => {
     expect(events.find((event) => event.type === "meta")).toMatchObject({ truncated: true });
   });
 });
+
+describe("REQUIRE_ACCESS_CODE", () => {
+  it("keeps every section and the model closed until the code is in", async () => {
+    const provider = new ScriptedProvider("Hoi. [[QUELLEN: keine]]");
+    const { app } = await createTestApp({ provider, config: { requireAccessCode: true } });
+    const ask = (cookie?: string) =>
+      app.request("/api/chat", postJson({ conversationId: CONVERSATION, message: "Hoi" }, cookie));
+
+    const session = (await (await app.request("/api/session")).json()) as SessionInfo;
+    expect(session.accessRequired).toBe(true);
+    const index = (await (await app.request("/api/knowledge")).json()) as KnowledgeIndex;
+    expect(index.sections).toEqual([]);
+    expect(index.lockedSectionCount).toBe(session.lockedSectionCount);
+    expect((await app.request("/api/knowledge/werdegang/ausbildung")).status).toBe(404);
+
+    const refused = await ask();
+    expect(refused.status).toBe(403);
+    expect(await refused.json()).toMatchObject({ error: "locked" });
+    expect(provider.requests).toHaveLength(0);
+
+    const cookie = await unlock(app);
+    const unlocked = (await (
+      await app.request("/api/knowledge", { headers: { cookie } })
+    ).json()) as KnowledgeIndex;
+    expect(unlocked.lockedSectionCount).toBe(0);
+    expect(unlocked.sections).toHaveLength(session.lockedSectionCount);
+    expect((await readChatEvents(await ask(cookie))).at(-1)).toEqual({ type: "done" });
+    expect(provider.requests).toHaveLength(1);
+  });
+});

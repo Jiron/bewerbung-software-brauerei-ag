@@ -30,6 +30,7 @@ import { signSession, verifySession } from "./security/session.ts";
 export type AppConfig = Pick<
   Config,
   | "accessCodeHash"
+  | "requireAccessCode"
   | "sessionSecret"
   | "sessionTtlHours"
   | "maxMessageLength"
@@ -62,6 +63,15 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
   const { config, knowledge, chat, limiters, logger } = deps;
   const app = new Hono<AppEnv>();
   let verifying = 0;
+
+  // REQUIRE_ACCESS_CODE closes everything, public sections included, until the code is in.
+  const gateClosed = (tier: Tier) => config.requireAccessCode && tier === "public";
+  const sectionsFor = (tier: Tier) =>
+    gateClosed(tier) ? [] : visibleSections(knowledge.current, tier);
+  const lockedFor = (tier: Tier) =>
+    gateClosed(tier)
+      ? knowledge.current.sections.length
+      : lockedSectionCount(knowledge.current, tier);
 
   app.use(
     secureHeaders({
@@ -123,8 +133,9 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
       demo: current.demo,
       persona: current.persona,
       limits: { maxMessageLength: config.maxMessageLength },
-      lockedSectionCount: lockedSectionCount(current, tier),
+      lockedSectionCount: lockedFor(tier),
       unlockAvailable: config.accessCodeHash !== null,
+      accessRequired: config.requireAccessCode,
       repoUrl: config.repoUrl,
     };
     return c.json(body);
@@ -199,24 +210,23 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
 
   app.get("/api/knowledge", (c) => {
     const tier = c.get("tier");
-    const current = knowledge.current;
     const body: KnowledgeIndex = {
-      sections: visibleSections(current, tier).map((section) => ({
+      sections: sectionsFor(tier).map((section) => ({
         id: section.id,
         title: displayTitle(section),
         fileTitle: section.fileTitle,
         tier: section.tier,
         chars: section.content.length,
       })),
-      lockedSectionCount: lockedSectionCount(current, tier),
+      lockedSectionCount: lockedFor(tier),
     };
     return c.json(body);
   });
 
   app.get("/api/knowledge/*", (c) => {
     const id = safeDecode(c.req.path.slice("/api/knowledge/".length));
-    // Private sections answer 404 while locked: not even their existence leaks.
-    const section = visibleSections(knowledge.current, c.get("tier")).find((s) => s.id === id);
+    // Locked sections answer 404: not even their existence leaks.
+    const section = sectionsFor(c.get("tier")).find((s) => s.id === id);
     if (!section) return apiError(c, 404, "not_found", "Diesen Abschnitt gibt es nicht.");
     const body: SectionDetail = {
       id: section.id,
@@ -245,6 +255,9 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
     if (!question) return apiError(c, 400, "invalid_request", "Leere Frage.");
     if ([...question].length > config.maxMessageLength) {
       return apiError(c, 413, "message_too_long", `Höchstens ${config.maxMessageLength} Zeichen.`);
+    }
+    if (gateClosed(c.get("tier"))) {
+      return apiError(c, 403, "locked", "Ohne Zugangscode keine Fragen. Er steht in der E-Mail.");
     }
 
     const limit = limiters.chat.take(c.get("ip"));
@@ -343,7 +356,7 @@ export function cleanQuestion(raw: string): string {
 
 function apiError(
   c: Context,
-  status: 400 | 401 | 404 | 413 | 415 | 429 | 500,
+  status: 400 | 401 | 403 | 404 | 413 | 415 | 429 | 500,
   error: ApiErrorCode,
   message: string,
   extra: Pick<ApiError, "retryAfterSeconds" | "attemptsLeft"> = {},

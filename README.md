@@ -128,6 +128,7 @@ Alles optional, Details und Standardwerte in [`.env.example`](.env.example).
 | `ANTHROPIC_MODEL`, `ANTHROPIC_EFFORT` | Standard: `claude-haiku-5-5`, `low`. |
 | `KNOWLEDGE_DIR` | Ordner mit `public/`, `private/` und `persona.json`. |
 | `ACCESS_CODE_HASH`, `SESSION_SECRET` | Privater Bereich. Ohne Hash gibt es keinen. |
+| `REQUIRE_ACCESS_CODE` | `true`: Ohne Code geht gar nichts, keine Frage an die KI und kein Abschnitt, auch kein öffentlicher. |
 | `DAILY_SPEND_CAP_USD` | Hartes Tagesbudget, Reset um Mitternacht Schweizer Zeit. Standard: 1 USD. |
 | `RATE_LIMIT_PER_MINUTE`, `RATE_LIMIT_PER_DAY` | Pro IP. Standard: 6 und 120. |
 | `MAX_MESSAGE_LENGTH` | Standard: 500 Zeichen. |

@@ -14,6 +14,8 @@ export interface Config {
   /** True when knowledgeDir fell back to the bundled fictional persona. */
   usingExampleKnowledge: boolean;
   accessCodeHash: string | null;
+  /** True: without the code nothing works, not even the public sections or the chat. */
+  requireAccessCode: boolean;
   sessionSecret: string;
   sessionSecretIsEphemeral: boolean;
   sessionTtlHours: number;
@@ -55,6 +57,10 @@ export function loadConfig(env: Env, cwd: string = process.cwd()): Config {
   if (accessCodeHash !== null && !accessCodeHash.startsWith("scrypt:")) {
     throw new ConfigError("ACCESS_CODE_HASH must be created with `npm run hash-code`.");
   }
+  const requireAccessCode = boolean(env, "REQUIRE_ACCESS_CODE", false);
+  if (requireAccessCode && accessCodeHash === null) {
+    throw new ConfigError("REQUIRE_ACCESS_CODE needs an ACCESS_CODE_HASH, or nobody gets in.");
+  }
 
   const dataDir = optionalString(env, "DATA_DIR");
 
@@ -68,6 +74,7 @@ export function loadConfig(env: Env, cwd: string = process.cwd()): Config {
     knowledgeDir: usingExampleKnowledge ? exampleKnowledge : preferredKnowledge,
     usingExampleKnowledge,
     accessCodeHash,
+    requireAccessCode,
     sessionSecret: sessionSecret ?? randomSecret(),
     sessionSecretIsEphemeral: sessionSecret === null,
     sessionTtlHours: integer(env, "SESSION_TTL_HOURS", 168, { min: 1, max: 24 * 90 }),

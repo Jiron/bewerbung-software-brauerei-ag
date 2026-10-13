@@ -38,6 +38,7 @@ const FALLBACK_SESSION: SessionInfo = {
   limits: { maxMessageLength: 500 },
   lockedSectionCount: 0,
   unlockAvailable: false,
+  accessRequired: false,
   repoUrl: null,
 };
 
@@ -88,7 +89,14 @@ export class App {
     this.#printIntro();
     if (!info) this.#screen.error(ERRORS.offline.code, ERRORS.offline.text);
     this.#renderSuggestions();
-    this.#idle();
+    // Behind REQUIRE_ACCESS_CODE the code is the only way in, so ask for it right away.
+    if (this.#gateClosed) this.#askForCode();
+    else this.#idle();
+  }
+
+  /** REQUIRE_ACCESS_CODE and not unlocked yet: no AI, no knowledge. */
+  get #gateClosed(): boolean {
+    return this.#session.accessRequired && this.#session.tier === "public";
   }
 
   // ── input ──────────────────────────────────────────────────────────────────
@@ -182,6 +190,14 @@ export class App {
 
   async #execute(command: Command): Promise<void> {
     const screen = this.#screen;
+    const needsAccess =
+      command.kind === "question" ||
+      command.kind === "list" ||
+      (command.kind === "run" && command.program !== null);
+    if (needsAccess && this.#gateClosed) {
+      screen.error(ACCESS.required.code, ACCESS.required.text);
+      return;
+    }
     switch (command.kind) {
       case "question":
         return this.#ask(command.text);
@@ -248,7 +264,9 @@ export class App {
       showSource: (id) => void this.#showSource(id),
     });
     this.#turn = turn;
-    await turn.run(this.#conversationId, question);
+    const failure = await turn.run(this.#conversationId, question);
+    // The server forgot the unlock (expired, or restarted without SESSION_SECRET).
+    if (failure === "locked") this.#session = await api.session();
     this.#renderSuggestions();
   }
 
@@ -294,6 +312,12 @@ export class App {
       await api.unlock(code);
       this.#session = await api.session();
       this.#screen.line(ACCESS.granted, "ok");
+      if (this.#session.accessRequired) {
+        // Everything was locked, so this is the real welcome.
+        this.#printWelcome();
+        this.#renderSuggestions();
+        return;
+      }
       this.#screen.line(ACCESS.grantedText(locked));
       this.#screen.announce(`${ACCESS.granted} ${ACCESS.grantedText(locked)}`);
     } catch (error) {
@@ -317,7 +341,8 @@ export class App {
   async #lock(): Promise<void> {
     await api.lock();
     this.#session = await api.session();
-    this.#screen.line(ACCESS.loggedOut);
+    this.#screen.line(this.#session.accessRequired ? ACCESS.loggedOutAll : ACCESS.loggedOut);
+    this.#renderSuggestions();
   }
 
   // ── output ─────────────────────────────────────────────────────────────────
@@ -345,13 +370,25 @@ export class App {
 
   #printIntro(): void {
     const screen = this.#screen;
-    const { persona, demo, mode, lockedSectionCount, unlockAvailable } = this.#session;
+    const { persona, demo, mode } = this.#session;
     screen.line(INTRO.title, "title");
     screen.line(INTRO.subtitle, "dim");
     screen.line("");
     if (demo) screen.line(INTRO.demo(persona.name), "dim");
     if (mode === "mock") screen.line(INTRO.mock, "dim");
     if (demo || mode === "mock") screen.line("");
+    if (this.#gateClosed) {
+      screen.line(INTRO.gate(persona.shortName));
+      screen.line(INTRO.gateHint, "dim");
+      screen.announce(`${INTRO.gate(persona.shortName)} ${INTRO.gateHint}`);
+      return;
+    }
+    this.#printWelcome();
+  }
+
+  #printWelcome(): void {
+    const screen = this.#screen;
+    const { persona, lockedSectionCount, unlockAvailable } = this.#session;
     screen.line(INTRO.greeting(persona.shortName));
     screen.line("");
     screen.line(INTRO.challenge, "beer");
@@ -453,7 +490,9 @@ export class App {
 
   #renderSuggestions(): void {
     const list = this.#el.suggestions;
-    const picks = [...this.#suggestionPool.slice(0, 3), "HELP"];
+    const picks = this.#gateClosed
+      ? ["CODE", "HELP"]
+      : [...this.#suggestionPool.slice(0, 3), "HELP"];
     list.replaceChildren(
       ...picks.map((text) => {
         const button = element("button", { className: "chip", text });

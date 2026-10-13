@@ -1,6 +1,6 @@
 import type { ApiErrorCode, ChatEvent, ProviderMode, SourceRef } from "../../shared/api.ts";
 import { RequestError, streamChat } from "../api.ts";
-import { CHAT, ERRORS, UI } from "../copy.ts";
+import { ACCESS, CHAT, ERRORS, UI } from "../copy.ts";
 import { element } from "../lib/browser.ts";
 import type { Screen } from "../terminal/screen.ts";
 import { Typewriter } from "../terminal/typewriter.ts";
@@ -49,7 +49,8 @@ export class ChatTurn {
     this.#writer?.flush();
   }
 
-  async run(conversationId: string, question: string): Promise<void> {
+  /** Asks and prints the answer. Returns the error code if it failed, so the app can react. */
+  async run(conversationId: string, question: string): Promise<Failure["error"] | null> {
     const { screen } = this.#deps;
     const started = performance.now();
     const status = screen.line(CHAT.tapping, "beer");
@@ -96,7 +97,7 @@ export class ChatTurn {
         stopTapping();
         if (!writer.text) status.remove();
         screen.line(CHAT.break);
-        return;
+        return null;
       }
       outcome.failure =
         error instanceof RequestError
@@ -113,7 +114,7 @@ export class ChatTurn {
         answer.remove();
       }
       this.#printFailure(outcome.failure);
-      return;
+      return outcome.failure.error;
     }
 
     const seconds = ((performance.now() - started) / 1000).toFixed(1);
@@ -121,6 +122,7 @@ export class ChatTurn {
       this.#deps.mode === "live" ? CHAT.tappedLive(seconds) : CHAT.tappedMock(seconds);
     this.#printMeta(outcome.meta);
     screen.announce(writer.text);
+    return null;
   }
 
   #printMeta(meta: MetaEvent | null): void {
@@ -171,6 +173,9 @@ export class ChatTurn {
         break;
       case "refusal":
         screen.error(ERRORS.refusal.code, ERRORS.refusal.text);
+        break;
+      case "locked":
+        screen.error(ACCESS.required.code, ACCESS.required.text);
         break;
       default:
         screen.error(ERRORS.internal.code, ERRORS.internal.text);
