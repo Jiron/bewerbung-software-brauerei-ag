@@ -1,5 +1,3 @@
-<div align="center">
-
 ```
     **** MANASSES 64 BASIC V2 ****
 
@@ -8,6 +6,8 @@
 READY.
 LOAD "MANASSES",8,1
 ```
+
+<div align="center">
 
 # LOAD MANASSES
 
