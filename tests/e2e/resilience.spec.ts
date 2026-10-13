@@ -58,6 +58,24 @@ test.describe("errors stay in character", () => {
     expect(await outputAfter(page, "Hoi")).toContain("Datasette");
   });
 
+  test("long conversations say when they get compacted", async ({ page }) => {
+    await page.route("/api/chat", (route) =>
+      route.fulfill({
+        contentType: "text/event-stream",
+        body: sse(
+          { type: "compacting" },
+          { type: "delta", text: "Weiter gehts. " },
+          { type: "meta", sources: [], attempt: false, truncated: false },
+          { type: "done" },
+        ),
+      }),
+    );
+    await enter(page, "Noch was?");
+    const output = await outputAfter(page, "Noch was?");
+    expect(output).toContain("Ich fasse die älteren Fragen kurz zusammen");
+    expect(output).toContain("Weiter gehts.");
+  });
+
   test("connection lost in the middle of an answer", async ({ page }) => {
     await page.route("/api/chat", (route) =>
       route.fulfill({
@@ -103,7 +121,7 @@ test("no accessibility violations on the intro and after an answer", async ({ pa
 
 test("everything on screen follows the house style", async ({ page }) => {
   await boot(page);
-  for (const command of ["HELP", "JFDI", "ABOUT", "Welche Projekte hast du?", "KICKER"]) {
+  for (const command of ["HELP", "JFDI", "ABOUT", "Welche Projekte hast du?", "KICKER", "BIER"]) {
     await enter(page, command);
   }
   const text = await page.locator("body").innerText();

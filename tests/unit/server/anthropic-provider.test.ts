@@ -165,6 +165,51 @@ describe("AnthropicProvider", () => {
     );
   });
 
+  it("summarizes with one plain request and reports usage", async () => {
+    let sent: Record<string, unknown> = {};
+    const fake = (async (_url: string | URL | Request, init?: RequestInit) => {
+      sent = JSON.parse(String(init?.body)) as Record<string, unknown>;
+      const body = {
+        id: "msg_summary",
+        type: "message",
+        role: "assistant",
+        model: "claude-haiku-5-5",
+        content: [
+          { type: "thinking", thinking: "", signature: "sig" },
+          { type: "text", text: "* Notiz" },
+        ],
+        stop_reason: "end_turn",
+        stop_sequence: null,
+        usage: { input_tokens: 900, output_tokens: 40 },
+      };
+      return new Response(JSON.stringify(body), {
+        status: 200,
+        headers: { "content-type": "application/json" },
+      });
+    }) as typeof fetch;
+
+    const result = await provider(fake).summarize({
+      system: "FASSE ZUSAMMEN",
+      transcript: "<gespraech>BESUCHER: Hoi</gespraech>",
+      previousSummary: null,
+      turns: [],
+      maxOutputTokens: 600,
+      signal: new AbortController().signal,
+    });
+    expect(sent).toMatchObject({
+      model: "claude-haiku-5-5",
+      max_tokens: 600,
+      output_config: { effort: "low" },
+      system: "FASSE ZUSAMMEN",
+      messages: [{ role: "user", content: "<gespraech>BESUCHER: Hoi</gespraech>" }],
+    });
+    expect(sent).not.toHaveProperty("stream");
+    expect(result).toEqual({
+      text: "* Notiz",
+      usage: { inputTokens: 900, outputTokens: 40, cacheReadTokens: 0, cacheWriteTokens: 0 },
+    });
+  });
+
   it("treats an unreachable API as unavailable", async () => {
     const fake = (async () => {
       throw new TypeError("fetch failed");

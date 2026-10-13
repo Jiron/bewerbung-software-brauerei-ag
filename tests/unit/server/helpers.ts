@@ -1,7 +1,10 @@
 import path from "node:path";
 import { type AppConfig, createApp } from "../../../src/server/app.ts";
 import { ChatService } from "../../../src/server/chat/chat-service.ts";
-import { ConversationStore } from "../../../src/server/chat/conversations.ts";
+import {
+  type ConversationOptions,
+  ConversationStore,
+} from "../../../src/server/chat/conversations.ts";
 import { MockProvider } from "../../../src/server/chat/mock-provider.ts";
 import type { ChatProvider } from "../../../src/server/chat/provider.ts";
 import { KnowledgeStore, loadKnowledge } from "../../../src/server/knowledge/store.ts";
@@ -28,6 +31,7 @@ export interface TestAppOptions {
   unlockMaxAttempts?: number;
   withAccessCode?: boolean;
   config?: Partial<AppConfig>;
+  conversations?: ConversationOptions;
   logger?: Logger;
 }
 
@@ -45,7 +49,7 @@ export async function createTestApp(options: TestAppOptions = {}) {
   const chat = new ChatService({
     provider,
     knowledge,
-    conversations: new ConversationStore(),
+    conversations: new ConversationStore(options.conversations),
     spend,
     maxOutputTokens: 1024,
     repoUrl: "https://github.com/example/load-manasses",

@@ -79,6 +79,8 @@ export interface ApiError {
 
 /** Server-sent events emitted by POST /api/chat. */
 export type ChatEvent =
+  /** A long conversation is being summarized before the answer starts. */
+  | { type: "compacting" }
   | { type: "delta"; text: string }
   | { type: "meta"; sources: SourceRef[]; attempt: boolean; truncated: boolean }
   | { type: "done" }

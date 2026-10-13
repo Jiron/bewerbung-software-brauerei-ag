@@ -47,8 +47,17 @@ export const HELP = {
     ["ABOUT", "über dieses Projekt"],
     ["SYS 64738", "Neustart"],
   ] as const,
+  extrasHeading: "ZUM SPASS",
+  extras: [
+    ["AIRHOCKEY", "eine Runde gegen den C64"],
+    ["BIER", "eins aufs Haus"],
+    ["KICKER", "meine Kicker-Statistik"],
+    ["JFDI", "euer Motto, meine Version"],
+    ["POKE 53280,0", "Rahmenfarbe, 0 bis 15"],
+    ['LOAD "$",8', "die Diskette als Verzeichnis"],
+  ] as const,
   keys: "ESC = RUN/STOP (Antwort abbrechen) · Pfeil hoch = letzte Eingabe",
-  secrets: "Dazu ein paar versteckte Befehle. Es ist ein C64, probier was aus.",
+  secrets: "Ein paar Befehle sind noch versteckt. Es ist ein C64, probier was aus.",
 };
 
 export const SUGGESTIONS = [
@@ -78,7 +87,32 @@ export const CHAT = {
   noSources: "QUELLEN: keine",
   sourcesHint: "Klick auf eine Quelle zeigt den Originaltext.",
   truncated: "(Antwort gekürzt. Ich rede sonst zu viel.)",
+  /** Shown when the server condenses a long conversation before answering. */
+  compacting:
+    "Langes Gespräch: Ich fasse die älteren Fragen kurz zusammen, damit mein Speicher reicht.",
   break: "BREAK",
+};
+
+export const GAME = {
+  searching: "SEARCHING FOR AIRHOCKEY",
+  loading: "LOADING",
+  label: "Airhockey gegen den C64",
+  stop: "RUN/STOP",
+  hintDesktop:
+    "Maus oder Pfeiltasten steuern deinen grünen Schläger. Wer zuerst 5 Tore hat, gewinnt.",
+  hintTouch: "Zieh deinen grünen Schläger mit dem Finger. Wer zuerst 5 Tore hat, gewinnt.",
+  you: "DU",
+  cpu: "C64",
+  goalPlayer: "TOR!",
+  goalCpu: "TOR FÜR DEN C64!",
+  youWin: "GEWONNEN!",
+  cpuWins: "DER C64 GEWINNT!",
+  announceGoal: (yours: boolean, player: number, cpu: number) =>
+    `${yours ? "Tor für dich" : "Tor für den C64"}. ${player} zu ${cpu}.`,
+  final: (player: number, cpu: number) => `DU ${player} : ${cpu} C64`,
+  won: "Gewonnen! Der Brotkasten will Revanche, am liebsten am echten Tisch.",
+  lost: "Der Brotkasten gewinnt. Revanche? Tipp AIRHOCKEY.",
+  aborted: (player: number, cpu: number) => `Abgebrochen beim Stand ${player} : ${cpu}.`,
 };
 
 /** Two spaces before ERROR: the BASIC ROM stores the word as "  ERROR". */
@@ -174,7 +208,7 @@ export const EASTER_EGGS = {
     text: "GOTO gilt seit 1968 als schädlich. Ich halte mich dran.",
   },
   kicker:
-    "Kicker-Statistik: nicht in der Wissensbasis. Ehrlich gesagt spielt die KI-Version gar nicht. Klären wir am Dienstag im Office.",
+    "Kicker-Statistik: nicht in der Wissensbasis. Einen Kicker hat dieser C64 nicht, aber AIRHOCKEY läuft. Den Rest klären wir am Dienstag im Office.",
   jfdi: "JUST FUCKING DO IT. Mit Tests. Und einem Diff, den jemand gelesen hat.",
   amiga: {
     code: "?WRONG MACHINE  ERROR",

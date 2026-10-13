@@ -18,7 +18,7 @@ Was davon wo gelandet ist:
 | --- | --- | --- |
 | Freie Hardware-Wahl: C64, Amiga oder MacBook | Inserat | Das ganze Konzept. `AMIGA` gibt einen `?WRONG MACHINE ERROR`, `MACBOOK` liegt nicht im Brotkasten. |
 | Eigene Zapfanlage | Inserat | Antworten werden gezapft, Mock-Antworten kommen aus der Dose, leeres Budget ist ein `?FASS LEER ERROR`. |
-| Kicker-Matches und Airhockey-Duelle | Inserat | Vorschlag «Kicker oder Airhockey?», Befehl `KICKER` mit ehrlicher Antwort. |
+| Kicker-Matches und Airhockey-Duelle | Inserat | Vorschlag «Kicker oder Airhockey?», Befehl `KICKER` mit ehrlicher Antwort, und `AIRHOCKEY` als Spiel gegen den C64. |
 | «Just Fucking Do It» | Inserat, «Über uns» | Befehl `JFDI`, mit Tests. |
 | Gesundes Misstrauen gegenüber AI-Output, Datenbank-Migration «zu Gulasch» | Inserat | Quellen zu jeder Antwort, dieses Dokument. Die fiktive Wissensbasis erzählt eine Migrations-Panne als grössten Fail. |
 | «make it work, no bugs pls» | Inserat | Gleichnamiges Easter Egg: `?PROMPT TOO VAGUE ERROR`. |
@@ -70,11 +70,16 @@ Die ehrliche Liste. Kein Fehler ist in Produktion gegangen, aber jeder davon wä
 | Nach der Korrektur in MEMES.md stand im Befehl `ABOUT` weiterhin, die Schrift sei «von Hand gezeichnet». | Review aller Texte | Formulierung korrigiert |
 | Auf dem Handy fiel die Hilfe-Tabelle auseinander, und lange Vorschläge brachen auf zwei Zeilen um und sahen aus wie Eingabefelder. | Screenshot | Hilfe gestapelt, Vorschläge als eine Zeile zum Wischen |
 | Der vorgeschlagene «Was war dein grösster Fail?» bekam im Mock «steht nicht in meiner Wissensbasis», obwohl die Antwort im gesperrten Teil liegt. | Durchklicken aller Vorschläge | Mock verweist wie das echte Modell auf `CODE` |
+| Beim Airhockey löste der erste Entwurf Kollisionen immer zuerst für den Spieler, dann für den C64 auf. Wer zuletzt drankam, gewann jedes Gerangel an der Mittellinie: Zwei gleiche Computergegner spielten 9:38. | Simulierte Matches C64 gegen C64 | Reihenfolge wechselt bei jedem Schritt, seither ausgeglichen |
+| Ein Puck, den ein Schläger gegen die Bande drückte, bekam bei jedem Physikschritt neuen Schwung und zitterte mit Höchstgeschwindigkeit auf der Stelle. | Simulation | Eingeklemmter Puck steht still, nach 1.5 Sekunden legt ihn ein «Schiedsrichter» zurück ins Spiel |
+| Nach jedem Treffer lagen Puck und Schläger wegen Rundung um Millionstel Pixel ineinander. Das zählte als «eingeklemmt» und stoppte jeden Schuss entlang der Bande. | Simulation | Toleranz von einem halben Pixel |
+| Der C64 wartete vor einem Puck, der knapp auf der anderen Seite der Mittellinie lag, und kam nie heran. Der Puck lag dort für immer. | Simulation | Die eigene Hälfte endet exakt an der Mittellinie |
+| Nach einem Tor blieb «TOR FÜR DEN C64!» bis zum nächsten Tor stehen. | Browser | Anzeige nach der Pause neu zeichnen |
 | **Der teuerste Fehler:** Die Regel `knowledge/` in der `.gitignore` sollte den privaten Wissensordner schützen, blendete aber auch `src/server/knowledge/` aus. Der Wissens-Loader war nie committet, ein frischer Clone wäre nicht gestartet. Alle 192 Tests waren trotzdem grün, weil die Dateien auf der Platte lagen. Biome hat sie aus demselben Grund nie formatiert. | Nachbau des Docker-Builds aus den committeten Dateien | `/knowledge/` statt `knowledge/`, seither wird jede Änderung in einem frischen Clone geprüft |
 
 Dazu kamen zwei Fehler in den eigenen Tests des Agents (ein E2E-Test erwartete nach `CODE` ein `READY.`, ein anderer fand denselben Text zusätzlich in der unsichtbaren Screenreader-Ansage), ein paar Shell-Befehle, deren Escaping beim Bearbeiten von Code mit Regex kaputtging, und eine Behauptung ohne Prüfung: Im ersten Abschlussbericht stand, das Repository habe keinen GitHub-Remote. Es hatte einen, `git remote -v` hätte es in einer Sekunde gezeigt.
 
-**Was daraus folgt:** Von den 23 Fehlern in der Tabelle haben automatisierte Tests 10 gefunden, Browser und Screenshots 5, Reviews 7 und der nachgestellte Build einen. Der Agent schreibt schnell und meistens richtig, aber er prüft seine eigenen Annahmen nicht von selbst. Das Sicherheitsnetz muss stehen, bevor man ihm vertraut. Und es muss prüfen, was ausgeliefert wird: Grüne Tests im Arbeitsverzeichnis beweisen nichts über das Repository.
+**Was daraus folgt:** Von den 28 Fehlern in der Tabelle haben automatisierte Tests 10 gefunden, Simulationen 4, Browser und Screenshots 6, Reviews 7 und der nachgestellte Build einen. Der Agent schreibt schnell und meistens richtig, aber er prüft seine eigenen Annahmen nicht von selbst. Das Sicherheitsnetz muss stehen, bevor man ihm vertraut. Und es muss prüfen, was ausgeliefert wird: Grüne Tests im Arbeitsverzeichnis beweisen nichts über das Repository.
 
 ## Was noch ein Mensch prüfen muss
 

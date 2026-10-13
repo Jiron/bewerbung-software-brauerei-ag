@@ -53,7 +53,9 @@ claude mcp add load-manasses -- npx -y load-manasses
 * **C64 im ganzen Browserfenster:** blauer Bildschirm, hellblauer Rahmen, blinkender Cursor, Scanlines, Bootsequenz mit `LOAD "MANASSES",8,1` und Tape-Loader-Streifen. Überspringbar mit jeder Taste.
 * **Interview mit Quellen:** Jede Antwort endet mit einer Quellenzeile. Ein Klick darauf zeigt den Originaltext aus der Wissensbasis, ganz ohne KI dazwischen. Steht etwas nicht drin, sagt der Bot das und schlägt vor, mich im Gespräch zu fragen.
 * **Zwei Stufen Wissen:** Basics für alle, Details (Verfügbarkeit, Lohn, Referenzen) nach `CODE` mit dem Zugangscode aus meiner Bewerbungs-E-Mail. Vorher erreicht davon nichts den Browser und nichts das Modell.
-* **C64-Befehle:** `HELP`, `LIST`, `RUN CV`, `RUN PROJEKTE`, `RUN MEMES`, `NEW`, `CLR`, `SYS 64738` und ein paar versteckte. Es ist ein C64, probiert was aus.
+* **C64-Befehle:** `HELP`, `LIST`, `RUN CV`, `RUN PROJEKTE`, `RUN MEMES`, `NEW`, `CLR`, `SYS 64738`, zum Spass `BIER`, `KICKER`, `JFDI` und `POKE 53280,0`, dazu ein paar versteckte. Es ist ein C64, probiert was aus.
+* **`AIRHOCKEY`:** eine Runde gegen den C64, wer zuerst 5 Tore hat. Mit Maus, Finger oder Pfeiltasten, auf dem Handy steht der Tisch hochkant. Gezeichnet in C64-Auflösung mit harten Pixelkanten, beim Tor blinkt der Rahmen. Die Physik und der Computergegner sind reines TypeScript ohne DOM, die Tests lassen ganze Matches C64 gegen C64 laufen.
+* **Antworten wie über eine 300-Baud-Leitung:** ein paar Wörter, kurze Pause, die nächsten Wörter. Kein flüssiges Tippen Buchstabe für Buchstabe wie in jedem anderen Chat.
 * **Fehler im Stil des Hauses:** Rate Limit als `?OVERFLOW ERROR` («Hey, nicht so hastig!»), falscher Code als `?SYNTAX ERROR`, leeres Tagesbudget als `?FASS LEER ERROR`, API weg als `?DEVICE NOT PRESENT ERROR`, 404 als `?FILE NOT FOUND ERROR`.
 * **Barrierearm:** echte Formularfelder unter dem gemalten Cursor, Ansagen für Screenreader, Tastatur und Touch, WCAG-AA-Kontraste (deshalb ist das Hellblau heller als auf dem Original), `prefers-reduced-motion` schaltet alle Animationen ab.
 * **Schweizer Hausstil:** UI und Antworten auf Deutsch mit «ss», auf Englisch nur, wenn ihr Englisch schreibt. Keine Gedankenstriche, weder im Prompt noch in der Ausgabe (ein Filter schreibt sie im Stream um, ein Test prüft alle Texte).
@@ -74,6 +76,7 @@ Eine Frage läuft so durch den Server:
 2. **Prompt bauen:** Regeln plus die Abschnitte, die diese Sitzung sehen darf. Private Abschnitte kommen nur mit gültigem Session-Cookie dazu. Der Prompt ist pro Wissensstand und Stufe deterministisch und wird gecacht.
 3. **Streamen:** Das Modell schreibt am Ende Marken wie `[[QUELLEN: werdegang/ausbildung]]`. Ein `MarkerExtractor` schneidet sie aus dem Stream (auch wenn sie über mehrere Chunks verteilt ankommen), ein `HouseStyleFilter` ersetzt Gedankenstriche und Eszett. Quellen-IDs, die es nicht gibt, fliegen raus.
 4. **Merken:** Der Verlauf liegt auf dem Server, nicht im Browser. So kann niemand frühere Antworten fälschen, um das Modell zu steuern.
+5. **Kompaktieren:** Wird ein Gespräch lang (8 Fragen oder 16'000 Zeichen), fasst das Modell die älteren Runden in ein paar Notizen zusammen, die neuesten zwei bleiben wörtlich, wie bei einer langen Claude-Code-Sitzung. Die Notizen reisen als Teil einer Besuchernachricht mit, nie im Systemprompt, damit eingeschleuste Anweisungen dadurch nicht mehr Gewicht bekommen. Die Zusammenfassung zählt zum Tagesbudget. Geht sie schief, fallen wie bisher einfach die ältesten Runden weg.
 
 ### Stack und warum
 
@@ -153,7 +156,7 @@ Alles optional, Details und Standardwerte in [`.env.example`](.env.example).
 | `npm run build` und `npm start` | Produktions-Build und Server auf :3000 (liest `.env`) |
 | `npm run font` | Pixelschrift aus `scripts/font/glyphs.ts` neu bauen |
 
-Die Tests decken unter anderem ab: Marken über jede mögliche Chunk-Grenze, Hausstil aller Texte und Dokumente, dass private Abschnitte vor dem Entsperren nie im Prompt landen, Limits, Fehler im C64-Stil, Barrierefreiheit (axe), dass die Schrift jedes Zeichen der UI enthält, den MCP-Server gegen die echte App und den Claude-Provider gegen eine simulierte Messages API (Anfrageformat, Thinking-Blöcke, Usage, Ausfälle).
+Die Tests decken unter anderem ab: Marken über jede mögliche Chunk-Grenze, Hausstil aller Texte und Dokumente, dass private Abschnitte vor dem Entsperren nie im Prompt landen, Limits, Fehler im C64-Stil, Barrierefreiheit (axe), dass die Schrift jedes Zeichen der UI enthält, den MCP-Server gegen die echte App, den Claude-Provider gegen eine simulierte Messages API (Anfrageformat, Thinking-Blöcke, Usage, Ausfälle), das Kompaktieren langer Gespräche und ganze Airhockey-Matches C64 gegen C64, die nie hängen bleiben dürfen.
 
 ## Deployment
 

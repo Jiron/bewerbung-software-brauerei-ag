@@ -90,7 +90,11 @@ test.describe("commands", () => {
 
   test("HELP, LIST and RUN CV work without any AI", async ({ page }) => {
     await enter(page, "HELP");
-    expect(await outputAfter(page, "HELP")).toContain("RUN CV");
+    const help = await outputAfter(page, "HELP");
+    expect(help).toContain("RUN CV");
+    expect(help).toContain("ZUM SPASS");
+    expect(help).toContain("AIRHOCKEY");
+    expect(help).toContain("BIER");
 
     await enter(page, 'LOAD "$",8');
     const directory = await outputAfter(page, 'LOAD "$",8');
@@ -111,6 +115,37 @@ test.describe("commands", () => {
     expect(await outputAfter(page, "Sehr geehrte Damen und Herren")).toContain(
       "?PAPIERKORB  ERROR",
     );
+  });
+
+  test("AIRHOCKEY takes over the screen, RUN/STOP gives it back", async ({ page }) => {
+    await page.locator("#command").fill("AIRHOCKEY");
+    await page.locator("#command").press("Enter");
+    const table = page.getByRole("img", { name: "Airhockey gegen den C64" });
+    await expect(table).toBeVisible();
+    await expect(page.locator("#output")).toBeHidden();
+    await expect(page.getByText("DU 0 : 0 C64")).toBeVisible();
+
+    // Steer through the puck: mouse on desktop, a finger on the phone.
+    const box = await table.boundingBox();
+    if (!box) throw new Error("table has no size");
+    const portrait = box.height > box.width;
+    const point = (along: number) =>
+      portrait
+        ? { x: box.x + box.width / 2, y: box.y + box.height * (1 - along) }
+        : { x: box.x + box.width * along, y: box.y + box.height / 2 };
+    for (const along of [0.15, 0.25, 0.35, 0.45]) {
+      const { x, y } = point(along);
+      await page.mouse.move(x, y);
+    }
+
+    await page.getByRole("button", { name: "RUN/STOP" }).click();
+    await expect(table).toBeHidden();
+    await expect(page.locator("#output")).toBeVisible();
+    const output = await outputAfter(page, "AIRHOCKEY");
+    expect(output).toContain("SEARCHING FOR AIRHOCKEY");
+    expect(output).toContain("BREAK");
+    expect(output).toMatch(/Abgebrochen beim Stand \d+ : \d+\./);
+    await expect(page.locator("#command")).toBeVisible();
   });
 
   test("POKE changes colors and SYS 64738 resets", async ({ page }) => {

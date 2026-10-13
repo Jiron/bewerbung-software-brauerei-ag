@@ -6,6 +6,9 @@ import {
   type ProviderRequest,
   ProviderUnavailableError,
   type StopReason,
+  type SummaryRequest,
+  type SummaryResult,
+  type TokenUsage,
 } from "./provider.ts";
 
 export interface AnthropicProviderOptions {
@@ -59,17 +62,30 @@ export class AnthropicProvider implements ChatProvider {
         }
       }
       const message = await stream.finalMessage();
-      const usage = message.usage;
       yield {
         type: "end",
         stopReason: toStopReason(message.stop_reason),
-        usage: {
-          inputTokens: usage.input_tokens,
-          outputTokens: usage.output_tokens,
-          cacheReadTokens: usage.cache_read_input_tokens ?? 0,
-          cacheWriteTokens: usage.cache_creation_input_tokens ?? 0,
-        },
+        usage: toUsage(message.usage),
       };
+    } catch (error) {
+      throw this.#translate(error);
+    }
+  }
+
+  async summarize(request: SummaryRequest): Promise<SummaryResult> {
+    try {
+      const message = await this.#client.messages.create(
+        {
+          model: this.model,
+          max_tokens: request.maxOutputTokens,
+          output_config: { effort: this.#options.effort },
+          system: request.system,
+          messages: [{ role: "user", content: request.transcript }],
+        },
+        { signal: request.signal },
+      );
+      const text = message.content.flatMap((block) => (block.type === "text" ? [block.text] : []));
+      return { text: text.join(""), usage: toUsage(message.usage) };
     } catch (error) {
       throw this.#translate(error);
     }
@@ -98,6 +114,15 @@ export class AnthropicProvider implements ChatProvider {
     }
     return error;
   }
+}
+
+function toUsage(usage: Anthropic.Usage): TokenUsage {
+  return {
+    inputTokens: usage.input_tokens,
+    outputTokens: usage.output_tokens,
+    cacheReadTokens: usage.cache_read_input_tokens ?? 0,
+    cacheWriteTokens: usage.cache_creation_input_tokens ?? 0,
+  };
 }
 
 function toStopReason(reason: string | null): StopReason {

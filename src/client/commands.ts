@@ -36,6 +36,7 @@ export type Command =
   | { kind: "print"; text: string }
   | { kind: "load"; name: string }
   | { kind: "syntaxError" }
+  | { kind: "airhockey" }
   | { kind: "easterEgg"; egg: EasterEgg }
   | { kind: "question"; text: string };
 
@@ -59,11 +60,13 @@ const KEYWORDS: Record<string, Command> = {
   README: { kind: "about" },
   "SYS 64738": { kind: "reset" },
   SYS64738: { kind: "reset" },
+  AIRHOCKEY: { kind: "airhockey" },
+  "AIR HOCKEY": { kind: "airhockey" },
+  "RUN AIRHOCKEY": { kind: "airhockey" },
 };
 
 const EGGS: Record<string, EasterEgg> = {
   KICKER: "kicker",
-  AIRHOCKEY: "kicker",
   PADEL: "kicker",
   JFDI: "jfdi",
   "JUST DO IT": "jfdi",
