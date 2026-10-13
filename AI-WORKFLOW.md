@@ -59,5 +59,5 @@ Ehrlich offen, Stand jetzt:
 * **Echte Antworten:** Die Tests laufen im Mock-Modus. Wie sich Claude Haiku mit der echten Wissensbasis verhält, insbesondere bei Jailbreak-Versuchen, braucht einen Testlauf mit API-Key und kritisches Lesen der Antworten.
 * **Die Wissensbasis selbst:** Was der Bot über mich sagt, ist nur so ehrlich wie das, was ich hineinschreibe.
 * **Screenreader:** axe findet keine Verstösse, aber ein Durchgang mit NVDA oder VoiceOver ersetzt das nicht.
-* **Docker:** Auf dem Entwicklungsrechner gab es weder Docker noch WSL. Der Build wurde aus einem frischen Clone Stufe für Stufe nachgestellt (Kontext gemäss `.dockerignore`, dieselben Befehle, Start wie im `CMD`, dieselben Smoke-Tests wie in der CI), und alle Importpfade wurden auf exakte Gross- und Kleinschreibung geprüft, wie sie Linux verlangt. Ein echter `docker build` steht trotzdem noch aus.
+* **Docker:** Auf dem Entwicklungsrechner gab es weder Docker noch WSL. Der Build wurde deshalb zuerst aus einem frischen Clone Stufe für Stufe nachgestellt, danach hat die CI auf GitHub das Image echt gebaut, gestartet und per Smoke-Test geprüft. Offen ist der Betrieb hinter einem Reverse Proxy mit HTTPS, also der echte Deploy.
 * **MEMES.md:** steht in meiner Stimme und muss nach meinem Gegenlesen stimmen, nicht nach dem des Agents.
