@@ -64,3 +64,31 @@ jobs:
           test "$(curl -s -o /dev/null -w '%{http_code}' http://localhost:3000/nope)" = "404"
       - if: always()
         run: docker logs lm || true
+
+  compose:
+    name: Compose stack runs like in production
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Start the stack with the example knowledge mounted as /knowledge
+        run: KNOWLEDGE_PATH=./knowledge.example docker compose up -d --build
+      - name: Smoke test
+        run: |
+          for i in $(seq 1 30); do
+            curl -fs http://localhost:3000/api/health && break
+            sleep 1
+          done
+          # KNOWLEDGE_DIR=/knowledge is set explicitly, so a failed mount would crash the server.
+          curl -fs http://localhost:3000/api/session | grep -q '"demo":true'
+          curl -fsN -X POST http://localhost:3000/api/chat \
+            -H 'content-type: application/json' \
+            -d '{"conversationId":"compose-smoke-1","message":"Welche Projekte hast du?"}' \
+            | grep -q '^event: done'
+          # Read-only root file system, but the data volume takes the spend counter.
+          docker compose exec -T load-manasses cat /data/spend.json
+          # The image's HEALTHCHECK command works inside the container.
+          docker compose exec -T load-manasses wget -qO- http://127.0.0.1:3000/api/health
+      - if: always()
+        run: docker compose logs
+      - if: always()
+        run: docker compose down -v
