@@ -1,4 +1,4 @@
-import { mkdir, mkdtemp, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -31,6 +31,14 @@ describe("static files", () => {
     expect(asset.status).toBe(200);
     expect(asset.headers.get("cache-control")).toContain("immutable");
     expect(asset.headers.get("content-encoding")).toBe("gzip");
+  });
+
+  it("ships a robots.txt that keeps every crawler out", async () => {
+    const robots = await readFile(
+      path.resolve(import.meta.dirname, "../../../src/client/public/robots.txt"),
+      "utf8",
+    );
+    expect(robots).toBe("User-agent: *\nDisallow: /\n");
   });
 
   it("answers unknown pages with the C64 404 page", async () => {
