@@ -14,7 +14,7 @@ const section = (id: string): SectionSummary => ({
 
 describe("findSections", () => {
   // A file with text before its first heading gets an intro section named like the file.
-  const sections = ["projekte", "projekte/ligata", "projekte/jarvis", "werdegang/lehre"].map(
+  const sections = ["projekte", "projekte/musterwetter", "projekte/jarvis", "werdegang/lehre"].map(
     section,
   );
   const ids = (found: SectionSummary[]) => found.map((s) => s.id);
@@ -22,7 +22,7 @@ describe("findSections", () => {
   it("selects a whole file by its name, intro included", () => {
     expect(ids(findSections(sections, "projekte"))).toEqual([
       "projekte",
-      "projekte/ligata",
+      "projekte/musterwetter",
       "projekte/jarvis",
     ]);
   });
