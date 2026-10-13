@@ -5,8 +5,6 @@
  */
 
 export type EasterEgg =
-  | "kicker"
-  | "jfdi"
   | "amiga"
   | "macbook"
   | "sudo"
@@ -66,11 +64,6 @@ const KEYWORDS: Record<string, Command> = {
 };
 
 const EGGS: Record<string, EasterEgg> = {
-  KICKER: "kicker",
-  PADEL: "kicker",
-  JFDI: "jfdi",
-  "JUST DO IT": "jfdi",
-  "JUST FUCKING DO IT": "jfdi",
   AMIGA: "amiga",
   MACBOOK: "macbook",
   BIER: "beer",

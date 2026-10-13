@@ -8,8 +8,6 @@ type Output =
 
 /** What each hidden command prints. Kept honest: none of them claims anything about the applicant. */
 const OUTPUTS: Record<EasterEgg, Output> = {
-  kicker: { text: EASTER_EGGS.kicker },
-  jfdi: { text: EASTER_EGGS.jfdi, tone: "beer" },
   amiga: { error: EASTER_EGGS.amiga },
   macbook: { text: EASTER_EGGS.macbook },
   sudo: { text: EASTER_EGGS.sudo },

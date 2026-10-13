@@ -18,8 +18,8 @@ Was davon wo gelandet ist:
 | --- | --- | --- |
 | Freie Hardware-Wahl: C64, Amiga oder MacBook | Inserat | Das ganze Konzept. `AMIGA` gibt einen `?WRONG MACHINE ERROR`, `MACBOOK` liegt nicht im Brotkasten. |
 | Eigene Zapfanlage | Inserat | Antworten werden gezapft, Mock-Antworten kommen aus der Dose, leeres Budget ist ein `?FASS LEER ERROR`. |
-| Kicker-Matches und Airhockey-Duelle | Inserat | Vorschlag «Kicker oder Airhockey?», Befehl `KICKER` mit ehrlicher Antwort, und `AIRHOCKEY` als Spiel gegen den C64. |
-| «Just Fucking Do It» | Inserat, «Über uns» | Befehl `JFDI`, mit Tests. |
+| Kicker-Matches und Airhockey-Duelle | Inserat | Vorschlag «Kicker oder Airhockey?» und `AIRHOCKEY` als Spiel gegen den C64. |
+| «Just Fucking Do It» | Inserat, «Über uns» | Der Bot kennt es als euer Motto. |
 | Gesundes Misstrauen gegenüber AI-Output, Datenbank-Migration «zu Gulasch» | Inserat | Quellen zu jeder Antwort, dieses Dokument. Die fiktive Wissensbasis erzählt eine Migrations-Panne als grössten Fail. |
 | «make it work, no bugs pls» | Inserat | Gleichnamiges Easter Egg: `?PROMPT TOO VAGUE ERROR`. |
 | «System.out.println-Debugger» | Inserat | `System.out.println(...)` gibt einen `?WRONG LANGUAGE ERROR`. |
