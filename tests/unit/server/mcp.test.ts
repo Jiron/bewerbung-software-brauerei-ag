@@ -6,8 +6,8 @@ import { createServer, formatAnswer } from "../../../mcp/src/server.ts";
 import { createTestApp, TEST_CODE } from "./helpers.ts";
 
 /** MCP client, MCP server and the real Hono app, wired together without any network. */
-async function connect() {
-  const { app } = await createTestApp();
+async function connect(options: Parameters<typeof createTestApp>[0] = {}) {
+  const { app } = await createTestApp(options);
   const backend = new Backend({
     baseUrl: "http://load-manasses.test/",
     fetch: async (url, init) => app.request(url, init),
@@ -49,7 +49,9 @@ describe("MCP server", () => {
 
   it("unlocks the private tier with the code and keeps the cookie", async () => {
     const { call } = await connect();
-    expect((await call("list_knowledge")).text).toMatch(/private sections locked/);
+    expect((await call("list_knowledge")).text).toMatch(
+      /sections locked, unlock_private opens them/,
+    );
     expect((await call("read_knowledge", { id: "details/lohnvorstellung" })).isError).toBe(true);
 
     const wrong = await call("unlock_private", { code: "Freibier" });
@@ -60,6 +62,18 @@ describe("MCP server", () => {
     expect((await call("read_knowledge", { id: "details/lohnvorstellung" })).text).toContain(
       "Bier aus der Zapfanlage",
     );
+  });
+
+  it("works behind REQUIRE_ACCESS_CODE once the user gives the code", async () => {
+    const { call } = await connect({ config: { requireAccessCode: true } });
+    const locked = await call("ask_manasses", { question: "Wer bist du?" });
+    expect(locked).toMatchObject({ isError: true });
+    expect(locked.text).toMatch(/^locked:/);
+
+    expect((await call("unlock_private", { code: TEST_CODE })).text).toContain("ACCESS GRANTED");
+    const answer = await call("ask_manasses", { question: "Wo hast du deine Ausbildung gemacht?" });
+    expect(answer.isError).toBe(false);
+    expect(answer.text).toContain("Informatiker EFZ");
   });
 
   it("reports an unreachable server in character", async () => {

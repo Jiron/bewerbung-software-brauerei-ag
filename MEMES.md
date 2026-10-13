@@ -40,7 +40,7 @@ Unit-Tests für die Logik, End-to-End-Tests auf Desktop und Mobile, Barrierefrei
 
 Eine Bewerbung, die bootet. Ein MCP-Server, damit euer Claude Code mich interviewen kann. `LOAD "$",8` zeigt die Wissensbasis als Diskettenverzeichnis. Und ein paar Befehle, die in keiner Hilfe stehen.
 
-**Beweis:** `claude mcp add load-manasses -- npx -y load-manasses`
+**Beweis:** [`mcp/`](mcp/), die Anleitung steht im README unter «Aus Claude Code».
 
 ## Honesty
 
