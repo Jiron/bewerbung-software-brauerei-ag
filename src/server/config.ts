@@ -70,7 +70,9 @@ export function loadConfig(env: Env, cwd: string = process.cwd()): Config {
     anthropicApiKey: optionalString(env, "ANTHROPIC_API_KEY"),
     model: optionalString(env, "ANTHROPIC_MODEL") ?? "claude-haiku-5-5",
     effort: oneOf(env, "ANTHROPIC_EFFORT", ["low", "medium", "high"] as const, "low"),
-    maxOutputTokens: integer(env, "MAX_OUTPUT_TOKENS", 1024, { min: 256, max: 8192 }),
+    // Hidden thinking shares this budget with the visible answer. At 1024 a
+    // thoughtful run occasionally cut a 100-word answer off mid-sentence.
+    maxOutputTokens: integer(env, "MAX_OUTPUT_TOKENS", 2048, { min: 256, max: 8192 }),
     knowledgeDir: usingExampleKnowledge ? exampleKnowledge : preferredKnowledge,
     usingExampleKnowledge,
     accessCodeHash,

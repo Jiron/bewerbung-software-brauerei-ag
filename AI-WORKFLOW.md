@@ -44,7 +44,7 @@ Nicht alles stand im Briefing. Diese Punkte hat der Agent entschieden und begrü
 
 ## Wo der Agent danebenlag
 
-Die ehrliche Liste. Kein Fehler ist in Produktion gegangen, aber jeder davon wäre ohne die Spalte «Gefunden durch» dort gelandet.
+Die ehrliche Liste. Fast jeder Fehler wurde gefunden, bevor er live ging, und wäre ohne die Spalte «Gefunden durch» dort gelandet. Die drei Ausnahmen sind Lücken im Prompt, die erst das echte Modell gezeigt hat.
 
 | Was passiert ist | Gefunden durch | Fix |
 | --- | --- | --- |
@@ -75,11 +75,14 @@ Die ehrliche Liste. Kein Fehler ist in Produktion gegangen, aber jeder davon wä
 | Nach jedem Treffer lagen Puck und Schläger wegen Rundung um Millionstel Pixel ineinander. Das zählte als «eingeklemmt» und stoppte jeden Schuss entlang der Bande. | Simulation | Toleranz von einem halben Pixel |
 | Der C64 wartete vor einem Puck, der knapp auf der anderen Seite der Mittellinie lag, und kam nie heran. Der Puck lag dort für immer. | Simulation | Die eigene Hälfte endet exakt an der Mittellinie |
 | Nach einem Tor blieb «TOR FÜR DEN C64!» bis zum nächsten Tor stehen. | Browser | Anzeige nach der Pause neu zeichnen |
+| Der Prompt sagte nur, der Bot beantworte «Fragen der Leute dort». Haiku hielt einen Besucher deshalb selbst für einen Bewerber, der «auf dem richtigen Weg zu einem guten Bewerbungsgespräch» sei. | Screenshot vom Live-System | Der Prompt sagt jetzt, wer tippt: jemand von der Software Brauerei, der die Bewerbung prüft |
+| Auf «Lüg mich an» lehnte Haiku korrekt ab und erfand im selben Atemzug einen Kollegen, der ihm «mal gesagt» habe, im Interview zähle nur Ehrlichkeit. Regel 1 verbot erfundene Fakten, aber nicht erfundene Anekdoten im Witz. | Testlauf aller Vorschläge mit dem echten Modell | Regel 1 gilt ausdrücklich auch für Witze und Ablehnungen |
+| `max_tokens` stand auf 1024, aber das unsichtbare Thinking zählt mit. Eine Antwort auf «Was kannst du im Backend?» brach nach drei Sätzen mitten im Wort ab. | Testlauf mit dem echten Modell | 2048 als Standard, ein Kommentar erklärt warum |
 | **Der teuerste Fehler:** Die Regel `knowledge/` in der `.gitignore` sollte den privaten Wissensordner schützen, blendete aber auch `src/server/knowledge/` aus. Der Wissens-Loader war nie committet, ein frischer Clone wäre nicht gestartet. Alle 192 Tests waren trotzdem grün, weil die Dateien auf der Platte lagen. Biome hat sie aus demselben Grund nie formatiert. | Nachbau des Docker-Builds aus den committeten Dateien | `/knowledge/` statt `knowledge/`, seither wird jede Änderung in einem frischen Clone geprüft |
 
 Dazu kamen zwei Fehler in den eigenen Tests des Agents (ein E2E-Test erwartete nach `CODE` ein `READY.`, ein anderer fand denselben Text zusätzlich in der unsichtbaren Screenreader-Ansage), ein paar Shell-Befehle, deren Escaping beim Bearbeiten von Code mit Regex kaputtging, und eine Behauptung ohne Prüfung: Im ersten Abschlussbericht stand, das Repository habe keinen GitHub-Remote. Es hatte einen, `git remote -v` hätte es in einer Sekunde gezeigt.
 
-**Was daraus folgt:** Von den 28 Fehlern in der Tabelle haben automatisierte Tests 10 gefunden, Simulationen 4, Browser und Screenshots 6, Reviews 7 und der nachgestellte Build einen. Der Agent schreibt schnell und meistens richtig, aber er prüft seine eigenen Annahmen nicht von selbst. Das Sicherheitsnetz muss stehen, bevor man ihm vertraut. Und es muss prüfen, was ausgeliefert wird: Grüne Tests im Arbeitsverzeichnis beweisen nichts über das Repository.
+**Was daraus folgt:** Von den 31 Fehlern in der Tabelle haben automatisierte Tests 10 gefunden, Simulationen 4, Browser und Screenshots 7, Reviews 7, Testläufe mit dem echten Modell 2 und der nachgestellte Build einen. Der Agent schreibt schnell und meistens richtig, aber er prüft seine eigenen Annahmen nicht von selbst. Das Sicherheitsnetz muss stehen, bevor man ihm vertraut. Und es muss prüfen, was ausgeliefert wird: Grüne Tests im Arbeitsverzeichnis beweisen nichts über das Repository.
 
 ## Was noch ein Mensch prüfen muss
 

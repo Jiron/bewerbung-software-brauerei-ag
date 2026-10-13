@@ -43,6 +43,9 @@ describe("buildSystemPrompt", () => {
   it("states the core rules: honesty, scope, language, no dashes, markers", () => {
     const prompt = promptFor("public");
     expect(prompt).toMatch(/Erfinde nichts/);
+    expect(prompt).toMatch(/auch in Witzen und Ablehnungen: keine erfundenen Anekdoten/);
+    expect(prompt).toMatch(/Du bist der Bewerber/);
+    expect(prompt).toMatch(/nie so, als würde sie sich selbst bewerben/);
     expect(prompt).toMatch(/im Bewerbungsgespräch direkt zu fragen/);
     expect(prompt).toMatch(/immer in der Ich-Form/);
     expect(prompt).toMatch(/nie in der dritten Person/);
