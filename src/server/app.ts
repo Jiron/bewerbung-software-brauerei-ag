@@ -81,7 +81,17 @@ export function createApp(deps: AppDeps): Hono<AppEnv> {
     }),
   );
 
+  // Behind a reverse proxy (Coolify, Traefik, Caddy, nginx) every visitor has the proxy's
+  // address. Without TRUST_PROXY they would all share one rate limit, so say it once, loudly.
+  let warnedAboutProxy = false;
+
   app.use("/api/*", async (c, next) => {
+    if (!config.trustProxy && !warnedAboutProxy && c.req.header("x-forwarded-for")) {
+      warnedAboutProxy = true;
+      logger.warn("config.proxy_not_trusted", {
+        hint: "Requests come through a reverse proxy. Set TRUST_PROXY=true, otherwise all visitors share one rate limit.",
+      });
+    }
     c.set("ip", clientIp(c, config.trustProxy));
     c.set(
       "tier",

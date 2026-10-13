@@ -71,6 +71,23 @@ describe("GET /api/session", () => {
     expect(response.headers.get("content-security-policy")).toContain("script-src 'self'");
     expect(response.headers.get("cache-control")).toBe("no-store");
   });
+
+  it("warns once when a reverse proxy is in front but TRUST_PROXY is off", async () => {
+    const warnings: string[] = [];
+    const logger = { info() {}, error() {}, warn: (event: string) => warnings.push(event) };
+    const { app } = await createTestApp({ logger });
+    const behindProxy = { headers: { "x-forwarded-for": "203.0.113.7" } };
+
+    await app.request("/api/session");
+    expect(warnings).toEqual([]);
+    await app.request("/api/session", behindProxy);
+    await app.request("/api/session", behindProxy);
+    expect(warnings).toEqual(["config.proxy_not_trusted"]);
+
+    const trusted = await createTestApp({ logger, config: { trustProxy: true } });
+    await trusted.app.request("/api/session", behindProxy);
+    expect(warnings).toHaveLength(1);
+  });
 });
 
 describe("knowledge endpoints", () => {

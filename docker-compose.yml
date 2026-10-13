@@ -16,8 +16,10 @@ services:
       - ${KNOWLEDGE_PATH:-./knowledge}:/knowledge:ro
       # Persists the daily spend counter across restarts.
       - load-manasses-data:/data
+    # Localhost only: a reverse proxy on the host does HTTPS. Docker would
+    # otherwise publish plain HTTP past the firewall (ufw does not see it).
     ports:
-      - "${PORT:-3000}:3000"
+      - "127.0.0.1:${PORT:-3000}:3000"
     read_only: true
     tmpfs:
       - /tmp

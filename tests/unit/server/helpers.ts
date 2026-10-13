@@ -5,7 +5,7 @@ import { ConversationStore } from "../../../src/server/chat/conversations.ts";
 import { MockProvider } from "../../../src/server/chat/mock-provider.ts";
 import type { ChatProvider } from "../../../src/server/chat/provider.ts";
 import { KnowledgeStore, loadKnowledge } from "../../../src/server/knowledge/store.ts";
-import { silentLogger } from "../../../src/server/logger.ts";
+import { type Logger, silentLogger } from "../../../src/server/logger.ts";
 import { hashAccessCode } from "../../../src/server/security/access-code.ts";
 import { RateLimiter } from "../../../src/server/security/rate-limiter.ts";
 import { SpendTracker } from "../../../src/server/security/spend-tracker.ts";
@@ -28,6 +28,7 @@ export interface TestAppOptions {
   unlockMaxAttempts?: number;
   withAccessCode?: boolean;
   config?: Partial<AppConfig>;
+  logger?: Logger;
 }
 
 export async function createTestApp(options: TestAppOptions = {}) {
@@ -70,7 +71,7 @@ export async function createTestApp(options: TestAppOptions = {}) {
       unlockPerIp: new RateLimiter([{ max: options.unlockMaxAttempts ?? 5, windowMs: 60_000 }]),
       unlockGlobal: new RateLimiter([{ max: 1000, windowMs: 60_000 }]),
     },
-    logger: silentLogger,
+    logger: options.logger ?? silentLogger,
   });
   return { app, knowledge, spend };
 }
