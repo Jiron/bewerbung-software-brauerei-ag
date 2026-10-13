@@ -6,8 +6,28 @@ Euer Inserat: «Du weisst, wann der Agent recht hat, wann er halluziniert und wa
 
 * **Agent:** Claude Code mit Claude Opus 5.5, eine lange, weitgehend autonome Session mit Commits an jedem Meilenstein.
 * **Input:** ein Briefing von mir mit Ziel, Ton, Sicherheitsanforderungen und Definition of Done. Zum Beispiel: keine echten Daten und keine Schlüssel im Repo, zwei Wissensstufen mit Zugangscode, jede Grenze und jeder Fehler im Stil des Hauses, keine Gedankenstriche, Mock-Modus ohne API-Key, Prüfung im echten Browser auf Desktop und Mobile.
-* **Recherche:** Der Agent hat euer Inserat, die «Über uns»-Seite und das Meme Glossary gelesen. Die Folien sind Bilder, also wurden sie einzeln geöffnet und Text samt Bildinhalt ausgelesen.
 * **Verifikation:** Tests als Sicherheitsnetz, danach der echte Browser. Für Desktop- und Mobile-Ansichten hat der Agent Playwright-Screenshots erstellt und angeschaut, dazu axe für Barrierefreiheit.
+
+## Recherche zuerst
+
+Bevor die erste Zeile Code entstand, hat der Agent das Inserat, die «Über uns»-Seite und alle zehn Folien des Meme Glossary gelesen. Die Folien sind Bilder, also wurde jede einzeln geöffnet, Text und Bildinhalt ausgelesen. Am Ende wurde alles nochmals gegen die Live-Seiten geprüft (dabei fiel auf, dass Folie 6 «M\*therf+cker» schreibt, nicht «M\*therf\*cker»).
+
+Was davon wo gelandet ist:
+
+| Fundstück | Quelle | Verwendung |
+| --- | --- | --- |
+| Freie Hardware-Wahl: C64, Amiga oder MacBook | Inserat | Das ganze Konzept. `AMIGA` gibt einen `?WRONG MACHINE ERROR`, `MACBOOK` liegt nicht im Brotkasten. |
+| Eigene Zapfanlage | Inserat | Antworten werden gezapft, Mock-Antworten kommen aus der Dose, leeres Budget ist ein `?FASS LEER ERROR`, die Wette geht um ein Bier aus eurer Anlage. |
+| Kicker-Matches und Airhockey-Duelle | Inserat | Vorschlag «Kicker oder Airhockey?», Befehl `KICKER` mit ehrlicher Antwort. |
+| «Just Fucking Do It» | Inserat, «Über uns» | Befehl `JFDI`, mit Tests. |
+| Gesundes Misstrauen gegenüber AI-Output, Datenbank-Migration «zu Gulasch» | Inserat | Quellen zu jeder Antwort, Bierwette, dieses Dokument. Die fiktive Wissensbasis erzählt eine Migrations-Panne als grössten Fail. |
+| «make it work, no bugs pls» | Inserat | Gleichnamiges Easter Egg: `?PROMPT TOO VAGUE ERROR`. |
+| «System.out.println-Debugger» | Inserat | `System.out.println(...)` gibt einen `?WRONG LANGUAGE ERROR`. |
+| Projekt-Nanny, Jira-Board | Inserat | Befehl `JIRA`. |
+| «Läuft bei mir lokal» ist kein Deployment-Konzept | Inserat | Docker, Compose und CI, die den Stack wie in Produktion starten. |
+| «Sehr geehrte Damen und Herren» landet im Papierkorb | Inserat, «Über uns» | Wer so anfängt, bekommt einen `?PAPIERKORB ERROR`. |
+| Code of Meme: neun Werte als Memes | Meme Glossary | MEMES.md mit einer Antwort und einem Beleg pro Folie. Folie «Honesty» ist die Grundregel des Bots. |
+| GitHub- und App-Store-Heldentaten statt Anschreiben | Inserat, «Über uns» | Die Bewerbung ist selbst ein Repository. |
 
 ## Entscheidungen, die der Agent selbst getroffen hat
 
