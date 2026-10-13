@@ -30,7 +30,7 @@ Bewerbung von Manassés Zähnler als Fullstack Developer bei der [Software Braue
 
 ## Ausprobieren
 
-**Live:** folgt nach dem Deployment.
+**Live:** <https://brauerei.jiron.dev>. Der Zugangscode steht in der Bewerbungs-E-Mail.
 
 **Lokal, ohne API-Key, in einer Minute** (Node 24):
 
@@ -41,11 +41,16 @@ npm run dev
 
 Dann <http://localhost:5173> öffnen. Ohne `ANTHROPIC_API_KEY` läuft alles im Mock-Modus: Die Antworten kommen «aus der Dose» statt frisch gezapft, aber Quellen, Limits, Zugangscode und Fehlermeldungen funktionieren genau wie mit echter KI. Die mitgelieferte Wissensbasis gehört der fiktiven Person Max Muster.
 
-**Aus Claude Code** (der MCP-Server spricht mit der deployten Instanz):
+**Aus Claude Code:** Der MCP-Server im Ordner `mcp/` spricht mit der Live-Instanz. Node 24 führt ihn direkt aus dem Repository aus, ohne Build:
 
 ```bash
-claude mcp add load-manasses -- npx -y load-manasses
+git clone https://github.com/Jiron/bewerbung-software-brauerei-ag
+cd bewerbung-software-brauerei-ag
+npm install
+claude mcp add load-manasses -- node "$PWD/mcp/src/index.ts"
 ```
+
+Dann einfach fragen, zum Beispiel «Interview Manassés zu seiner Ausbildung». Ohne Zugangscode antwortet der Server mit `locked`, Claude fragt dann nach dem Code aus der E-Mail. Mit `LOAD_MANASSES_URL=http://localhost:8787` spricht er stattdessen mit dem lokalen Server.
 
 ## Was es kann
 
@@ -64,7 +69,7 @@ claude mcp add load-manasses -- npx -y load-manasses
 ```mermaid
 flowchart LR
   B["Browser<br>Vanilla TS, C64-UI"] -- "POST /api/chat<br>Server-Sent Events" --> S["Hono auf Node 24"]
-  M["MCP-Client<br>npx load-manasses"] -- "gleiche HTTP-API" --> S
+  M["MCP-Client<br>z. B. Claude Code"] -- "gleiche HTTP-API" --> S
   S -- "liest beim Start<br>und bei Änderungen" --> K[("Wissensbasis<br>public/ und private/")]
   S -- "Systemprompt + Verlauf" --> A["Claude Haiku 5.5<br>oder Mock"]
 ```
@@ -204,7 +209,7 @@ src/
 ├── server/          Hono-App, Chat-Pipeline, Wissensbasis, Sicherheit
 ├── client/          C64-Oberfläche, Befehle, Bootsequenz, Pixelschrift
 └── shared/          API-Typen, SSE-Parser, Hausstil-Regeln
-mcp/                 MCP-Server für npx load-manasses
+mcp/                 MCP-Server für Claude Code und andere MCP-Clients
 knowledge.example/   fiktive Wissensbasis als Vorlage
 scripts/             Dev-Server, Hash-Generator, Schrift-Build
 tests/               Unit-Tests (Vitest) und E2E-Tests (Playwright)

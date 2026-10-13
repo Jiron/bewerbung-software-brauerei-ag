@@ -22,7 +22,7 @@ export function createServer(backend: Backend): McpServer {
     {
       title: "Ask Manassés",
       description:
-        "Ask the AI version of Manassés Zähnler, applicant for Fullstack Developer at Software Brauerei AG, a question about his background, skills, projects or way of working. It only answers from its knowledge base and lists the sections it used. It answers in German unless asked in English. Follow-up questions keep the context.",
+        "Ask the AI version of Manassés Zähnler, applicant for Fullstack Developer at Software Brauerei AG, a question about his background, skills, projects or way of working. It only answers from its knowledge base and lists the sections it used. It answers in German unless asked in English. Follow-up questions keep the context. If it reports 'locked', ask the user for the access code from the application email and call unlock_private first.",
       inputSchema: {
         question: z.string().min(1).max(500).describe("The question, max 500 characters."),
       },
@@ -44,7 +44,7 @@ export function createServer(backend: Backend): McpServer {
         const index = await backend.knowledge();
         const lines = index.sections.map((section) => `${section.id}: ${section.title}`);
         if (index.lockedSectionCount > 0) {
-          lines.push(`(${index.lockedSectionCount} private sections locked, see unlock_private)`);
+          lines.push(`(${index.lockedSectionCount} sections locked, unlock_private opens them)`);
         }
         return lines.join("\n");
       }),
@@ -71,9 +71,9 @@ export function createServer(backend: Backend): McpServer {
   server.registerTool(
     "unlock_private",
     {
-      title: "Unlock private details",
+      title: "Unlock with the access code",
       description:
-        "Unlock the private knowledge tier (availability, salary expectations, references) with the access code from the application email. Only use a code the user gave you.",
+        "Unlock with the access code from the application email. The live server answers nothing without it; it also opens the private details (availability, salary expectations, references). Only use a code the user gave you.",
       inputSchema: { code: z.string().min(1).max(200).describe("The access code from the email.") },
     },
     async ({ code }) =>
