@@ -51,8 +51,6 @@ export const HELP = {
   extras: [
     ["AIRHOCKEY", "eine Runde gegen den C64"],
     ["BIER", "eins aufs Haus"],
-    ["KICKER", "meine Kicker-Statistik"],
-    ["JFDI", "euer Motto, meine Version"],
     ["POKE 53280,0", "Rahmenfarbe, 0 bis 15"],
     ['LOAD "$",8', "die Diskette als Verzeichnis"],
   ] as const,
@@ -207,9 +205,6 @@ export const EASTER_EGGS = {
     code: "?UNDEF'D STATEMENT  ERROR",
     text: "GOTO gilt seit 1968 als schädlich. Ich halte mich dran.",
   },
-  kicker:
-    "Kicker-Statistik: nicht in der Wissensbasis. Einen Kicker hat dieser C64 nicht, aber AIRHOCKEY läuft. Den Rest klären wir am Dienstag im Office.",
-  jfdi: "JUST FUCKING DO IT. Mit Tests. Und einem Diff, den jemand gelesen hat.",
   amiga: {
     code: "?WRONG MACHINE  ERROR",
     text: "Freie Hardware-Wahl, ich weiss. Aber hier läuft ein C64.",
