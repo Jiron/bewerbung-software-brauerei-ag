@@ -13,7 +13,7 @@ LOAD "MANASSES",8,1
 
 **Eine Bewerbung als Commodore 64.**<br>
 Statt eines Anschreibens: ein Terminal, auf dem du eine KI-Version von mir interviewst.<br>
-Sie darf nicht lügen, zeigt zu jeder Antwort ihre Quellen.
+Sie darf nicht lügen und zeigt zu jeder Antwort ihre Quellen.
 
 Bewerbung von Manassés Zähnler als Fullstack Developer bei der [Software Brauerei AG](https://www.software-brauerei.ch/jobs/fullstack-developer).
 
